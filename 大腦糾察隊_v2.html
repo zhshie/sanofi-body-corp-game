@@ -10,11 +10,11 @@
 /* ══ ROOT ══ */
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --bg:#f7f3fb;--surface:#fff;--surface2:#f0eaf8;
-  --accent:#7B2D8B;--accent2:#9B4EA8;--accent-pale:#f0e8f5;
-  --text:#1a1020;--text-dim:#6b5c7a;--border:#ddd0ea;
+  --bg:#C2D9E8;--surface:#fff;--surface2:#daeaf4;
+  --accent:#7B2D8B;--accent2:#9B4EA8;--accent-pale:rgba(255,255,255,0.85);
+  --text:#1a2a34;--text-dim:#4a6a7a;--border:#9cbdd0;
   --D:#cc2244;--I:#dd8800;--S:#228855;--C:#1155bb;
-  --shadow:0 2px 12px rgba(123,45,139,.1);
+  --shadow:0 2px 12px rgba(0,80,120,.12);
   --scene-color:#7B2D8B;
 }
 body{font-family:'Noto Sans TC',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
@@ -27,9 +27,21 @@ body{font-family:'Noto Sans TC',system-ui,sans-serif;background:var(--bg);color:
   box-shadow:0 3px 12px rgba(123,45,139,.35)}
 #sanofi-topbar .tb-logo{color:#fff;font-style:italic;font-weight:700;font-size:1.55rem;
   letter-spacing:.05em;opacity:.97;text-shadow:0 1px 4px rgba(0,0,0,.2)}
+.tb-logo-img{height:30px;object-fit:contain;display:block;
+  filter:invert(1);mix-blend-mode:screen}
+/* Hide topbar on fullscreen intro */
+body:has(#screen-intro.active) #sanofi-topbar{display:none}
 #sanofi-topbar .tb-title{color:rgba(255,255,255,.72);font-size:.7rem;letter-spacing:.1em;
   text-align:right;line-height:1.4}
 body{padding-top:56px}
+
+/* ══ BACK / ROW BUTTONS ══ */
+.btn-row{display:flex;gap:10px;margin-top:18px;width:100%}
+.btn-back{flex:0 0 76px;background:rgba(255,255,255,.8);border:1.5px solid var(--border);
+  border-radius:12px;padding:14px 0;font-size:.88rem;color:var(--text-dim);cursor:pointer;
+  font-family:inherit;transition:all .2s;text-align:center}
+.btn-back:hover{border-color:var(--accent);color:var(--accent)}
+.btn-main{flex:1}
 
 /* ══ MUTE BTN ══ */
 #mute-btn{position:fixed;top:12px;right:14px;z-index:999;width:32px;height:32px;border-radius:50%;
@@ -40,11 +52,22 @@ body{padding-top:56px}
 /* ══ SCREENS ══ */
 .screen{display:none;width:100%;max-width:680px;margin:0 auto;padding:20px;animation:fadeIn .45s ease}
 .screen.active{display:block}
-#screen-intro.active{display:flex}
+/* intro-dialogue uses flex centering */
+#screen-intro-dialogue.active{display:flex}
 @keyframes fadeIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
 
-/* ══ INTRO ══ */
-#screen-intro{min-height:100vh;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 20px}
+/* ══ INTRO (fullscreen cover) ══ */
+#screen-intro{position:fixed;top:0;left:0;width:100%;height:100%;padding:0;overflow:hidden;
+  background:#000;z-index:950}
+#screen-intro.active{display:block}
+.cover-full{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;object-position:center;z-index:0}
+.btn-cover-start{position:absolute;bottom:15%;left:50%;transform:translateX(-50%);
+  background:transparent;border:none;color:transparent;width:52%;height:64px;
+  cursor:pointer;z-index:10;border-radius:30px}
+/* ══ INTRO DIALOGUE (new screen) ══ */
+#screen-intro-dialogue{min-height:100vh;display:none;flex-direction:column;align-items:center;
+  justify-content:center;text-align:center;padding:40px 20px}
+#screen-intro-dialogue.active{display:flex}
 .sanofi-logo{height:36px;object-fit:contain;margin-bottom:20px}
 .sanofi-logo-text{color:var(--accent);font-weight:700;font-size:1.3rem;font-style:italic;margin-bottom:20px}
 .intro-badge{font-size:.75rem;letter-spacing:.25em;color:var(--accent);margin-bottom:8px;opacity:.8}
@@ -60,6 +83,21 @@ body{padding-top:56px}
 .btn-primary:hover{background:var(--accent2);box-shadow:0 6px 20px rgba(123,45,139,.3);transform:translateY(-2px)}
 
 /* ══ SCENE ══ */
+#screen-scene{background-size:cover;background-position:center top;background-attachment:fixed;
+  transition:background-image .3s;position:relative;min-height:calc(100vh - 56px)}
+#scene-overlay{position:fixed;inset:0;top:56px;background:rgba(0,0,0,.45);z-index:0;
+  pointer-events:none;display:none}
+#screen-scene.has-bg #scene-overlay{display:block}
+#screen-scene.has-bg .scene-wrap{position:relative;z-index:1}
+#screen-scene.has-bg .situation-box{background:rgba(255,255,255,.88);border-left-color:var(--scene-color)}
+#screen-scene.has-bg .narrator-bubble{background:rgba(255,255,255,.92)}
+#screen-scene.has-bg .reveal-box{background:rgba(243,234,251,.93)}
+#screen-scene.has-bg .s-title{color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.7)}
+#screen-scene.has-bg .s-dept{color:rgba(255,255,255,.75)}
+#screen-scene.has-bg .scene-color-bar{opacity:1}
+#screen-scene.has-bg .pdot{background:rgba(255,255,255,.4)}
+#screen-scene.has-bg .pdot.done{background:var(--scene-color);opacity:.7}
+#screen-scene.has-bg .pdot.active{background:#fff;box-shadow:0 0 8px #fff}
 .scene-wrap{padding-top:16px}
 .scene-color-bar{height:4px;background:var(--scene-color);border-radius:2px;margin-bottom:20px;
   transition:background .4s ease;opacity:.85}
@@ -93,7 +131,7 @@ body{padding-top:56px}
 /* options 2×2 grid */
 .options{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 @media(max-width:560px){.options{grid-template-columns:1fr}}
-.opt-card{background:var(--surface);border:1.5px solid var(--border);border-radius:14px;
+.opt-card{background:rgba(255,255,255,.93);border:1.5px solid var(--border);border-radius:14px;
   padding:14px 16px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;text-align:left}
 .opt-card::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%;
   background:var(--scene-color);transform:scaleY(0);transition:transform .2s;transform-origin:bottom}
@@ -104,12 +142,16 @@ body{padding-top:56px}
 .opt-label{font-size:.7rem;font-weight:700;color:var(--scene-color);letter-spacing:.12em;margin-bottom:4px}
 .opt-text{font-size:.9rem;font-weight:600;line-height:1.5;color:var(--text)}
 .opt-sub{display:none}
-.btn-next{width:100%;margin-top:18px;background:var(--surface);color:var(--text-dim);
+.btn-next{width:100%;background:var(--surface);color:var(--text-dim);
   border:1.5px solid var(--border);border-radius:12px;padding:14px;font-size:.92rem;
   font-family:inherit;font-weight:500;cursor:not-allowed;transition:all .22s;opacity:.45;pointer-events:none}
 .btn-next.on{opacity:1;pointer-events:auto;cursor:pointer;color:var(--scene-color);
-  border-color:var(--scene-color);background:var(--accent-pale)}
+  border-color:var(--scene-color);background:rgba(255,255,255,.92)}
 .btn-next.on:hover{background:var(--scene-color);color:#fff}
+/* when has-bg, btn-next gets semi-transparent bg */
+#screen-scene.has-bg .btn-next{background:rgba(255,255,255,.88)}
+#screen-scene.has-bg .btn-back{background:rgba(255,255,255,.8)}
+.btn-row{margin-top:18px}
 
 /* scene5 deep purple overrides */
 .scene5 .s-badge{background:#4a1060;color:#e0b8f0;border-color:#6a2080}
@@ -191,8 +233,10 @@ body{padding-top:56px}
   background:var(--accent);color:#fff;font-size:.65rem;padding:2px 10px;border-radius:20px;
   white-space:nowrap;font-weight:700}
 .compat-emoji{font-size:1.8rem;margin-bottom:6px}
+.compat-char-img{width:90px;height:90px;object-fit:contain;border-radius:12px;
+  margin:0 auto 8px;display:block;filter:drop-shadow(0 2px 8px rgba(0,0,0,.15))}
 .compat-type{font-size:.7rem;font-weight:700;letter-spacing:.08em;margin-bottom:2px}
-.compat-cell{font-size:.78rem;color:var(--text-dim)}
+.compat-cell{font-size:.82rem;color:var(--text);font-weight:600}
 .compat-reason{background:var(--surface2);border:1px solid var(--border);border-radius:12px;
   padding:16px 18px;font-size:.88rem;line-height:1.8;color:var(--text-dim);
   display:none;margin-bottom:16px}
@@ -351,18 +395,13 @@ body{padding-top:56px}
 .boost-celebrate{margin-top:20px;padding:16px;background:rgba(34,136,85,.08);border-radius:14px}
 @keyframes bounce-down{0%,100%{transform:translateY(0)}50%{transform:translateY(6px)}}
 
-/* ══ SCENE BG IMG ══ */
-.scene-bg-img{width:100%;border-radius:14px;margin-bottom:14px;object-fit:cover;max-height:220px;
-  display:block;box-shadow:0 4px 16px rgba(0,0,0,.12)}
+/* ══ SCENE BG IMG (hidden — now used as CSS background) ══ */
+.scene-bg-img{display:none!important}
 
 /* ══ CHAR IMG (personality) ══ */
 .char-img-wrap{text-align:center;margin:0 auto 16px}
-.char-img{width:180px;height:180px;object-fit:contain;display:block;margin:0 auto;
+.char-img{width:200px;height:200px;object-fit:contain;display:block;margin:0 auto;
   border-radius:16px;filter:drop-shadow(0 4px 14px rgba(123,45,139,.25))}
-
-/* ══ INTRO COVER ══ */
-.intro-cover{width:100%;max-width:380px;border-radius:20px;margin:0 auto 24px;display:block;
-  object-fit:cover;box-shadow:0 6px 24px rgba(123,45,139,.2)}
 
 /* ══ SHARE CARD HTML ══ */
 .share-card-html{background:linear-gradient(145deg,#7B2D8B,#4a1060);border-radius:20px;
@@ -399,7 +438,10 @@ body{padding-top:56px}
 <body>
 
 <div id="sanofi-topbar">
-  <span class="tb-logo">sanofi</span>
+  <span id="logo-click-area" style="cursor:pointer">
+    <img src="sanofi_logo.png" class="tb-logo-img" alt="sanofi"
+      onerror="this.outerHTML='<span class=\'tb-logo\'>sanofi</span>'">
+  </span>
   <span class="tb-title">🏢 人體總公司 危機管理系統</span>
 </div>
 <button id="mute-btn" title="切換音效">🔊</button>
@@ -407,18 +449,15 @@ body{padding-top:56px}
 
 <div id="app">
 
-<!-- ══ INTRO ══ -->
+<!-- ══ INTRO (fullscreen cover) ══ -->
 <div id="screen-intro" class="screen active">
-  <span id="logo-click-area">
-    <img src="sanofi_logo.png" class="sanofi-logo" alt="sanofi"
-      onerror="this.style.display='none';document.getElementById('logo-fallback').style.display='block'">
-    <strong id="logo-fallback" class="sanofi-logo-text" style="display:none">sanofi</strong>
-  </span>
-  <div class="intro-badge">🏢 人體總公司 · 危機管理系統</div>
-  <h1 class="intro-title">人體總監</h1>
-  <p class="intro-sub">挽救公司大作戰｜職場人格測驗 × 第二型發炎衛教</p>
-  <img src="plot/cover.png" class="intro-cover" alt="封面"
-    onerror="this.style.display='none'">
+  <img src="plot/cover.png" class="cover-full" alt="封面"
+    onerror="this.style.background:'#1a2a34'">
+  <button class="btn-cover-start" onclick="showScreen('screen-intro-dialogue')" aria-label="開始任務"></button>
+</div>
+
+<!-- ══ INTRO DIALOGUE ══ -->
+<div id="screen-intro-dialogue" class="screen">
   <div class="intro-box">
     <div class="ntag">▶ 特助 小哨（ILC2）</div>
     <div class="ntext">
@@ -429,11 +468,12 @@ body{padding-top:56px}
       <p>「拜託了！快幫幫我們吧...」</p>
     </div>
   </div>
-  <button class="btn-primary" onclick="startGame()">開始吧！</button>
+  <button class="btn-primary" onclick="startGame()" style="width:100%">沒問題！交給我吧！</button>
 </div>
 
 <!-- ══ SCENE ══ -->
 <div id="screen-scene" class="screen">
+  <div id="scene-overlay"></div>
   <div class="scene-wrap">
     <div class="scene-color-bar" id="scene-color-bar"></div>
     <div class="progress" id="pdots"></div>
@@ -446,7 +486,10 @@ body{padding-top:56px}
     <div id="s-narrator"></div>
     <p class="question-text" id="s-question">您會怎麼下令？</p>
     <div class="options" id="s-options"></div>
-    <button class="btn-next" id="btn-next" onclick="nextScene()">確認決策 →</button>
+    <div class="btn-row">
+      <button class="btn-back" onclick="goBack()">← 返回</button>
+      <button class="btn-next btn-main" id="btn-next" onclick="nextScene()">確認決策 →</button>
+    </div>
   </div>
 </div>
 
@@ -467,13 +510,19 @@ body{padding-top:56px}
     <div class="final-chips" id="final-chips"></div>
   </div>
   <div class="grade-box" id="grade-box"></div>
-  <button class="btn-primary" onclick="showPersonality()" style="width:100%">看看您是哪種主管 →</button>
+  <div class="btn-row">
+    <button class="btn-back" onclick="goBack()">← 返回</button>
+    <button class="btn-primary btn-main" onclick="showPersonality()">看看您的免疫人格 →</button>
+  </div>
 </div>
 
 <!-- ══ PERSONALITY ══ -->
 <div id="screen-personality" class="screen">
   <div id="personality-content"></div>
-  <button class="btn-primary" onclick="showCompat()" style="width:100%;margin-top:24px">找找您的最速配 →</button>
+  <div class="btn-row" style="margin-top:24px">
+    <button class="btn-back" onclick="goBack()">← 返回</button>
+    <button class="btn-primary btn-main" onclick="showCompat()">找找您的最速配 →</button>
+  </div>
 </div>
 
 <!-- ══ COMPAT ══ -->
@@ -485,62 +534,30 @@ body{padding-top:56px}
   </div>
   <div class="compat-cards" id="compat-cards"></div>
   <div class="compat-reason" id="compat-reason"></div>
-  <button class="btn-primary" onclick="showEdu()" style="width:100%">了解第二型發炎的故事 →</button>
+  <div class="btn-row">
+    <button class="btn-back" onclick="goBack()">← 返回</button>
+    <button class="btn-primary btn-main" onclick="showEdu()">了解第二型發炎的故事 →</button>
+  </div>
 </div>
 
 <!-- ══ EDU ══ -->
-<div id="screen-edu" class="screen">
-  <div class="edu-header">
-    <div class="s-badge">衛教知識</div>
-    <h2 style="font-size:1.5rem;font-weight:700;margin-bottom:6px;color:var(--text)">四個部門，同一場火</h2>
-    <p style="color:var(--text-dim);font-size:.88rem">原來這四個危機，都在演一種病</p>
-  </div>
-  <div class="review-intro">
-    「總監，剛才的四個部門危機，其實模擬了四種不同的疾病，但它們都是同一場火在不同地方的表現：」
-  </div>
-  <div class="pathway-box">
-    <div class="pw-label">▶ 第二型發炎反應路徑</div>
-    <div class="pw-node">外來觸發訊號<br><small style="color:var(--text-dim)">塵蟎 · 花粉 · 貓毛 · 食物過敏原</small></div>
-    <div class="pw-arrow">↓</div>
-    <div class="pw-node">上皮細胞釋放警報<br><small style="color:var(--accent)">IL-33 · TSLP · IL-25</small></div>
-    <div class="pw-arrow">↓</div>
-    <div class="pw-node"><strong>ILC2 活化</strong>（小哨：第一聲警報）</div>
-    <div class="pw-arrow">↓</div>
-    <div class="pw-node"><strong>Th2 細胞增生</strong>（發出指令）</div>
-    <div class="pw-arrow">↓</div>
-    <div class="pw-3">
-      <div class="pw-3-node"><strong>IL-4</strong><br><small>IgE生產</small></div>
-      <div class="pw-3-node"><strong>IL-5</strong><br><small>嗜酸球增生</small></div>
-      <div class="pw-3-node"><strong>IL-13</strong><br><small>黏液↑ 屏障異常</small></div>
-    </div>
-    <div class="pw-arrow">↓</div>
-    <div class="pw-eff">
-      <div class="pw-eff-node">過敏反應</div>
-      <div class="pw-eff-node">組織浸潤</div>
-      <div class="pw-eff-node">慢性發炎</div>
+<div id="screen-edu" class="screen" style="padding:0">
+  <img src="plot/衛教.png" style="width:100%;display:block" alt="第二型發炎衛教"
+    onerror="this.style.display='none'">
+  <div style="padding:16px 20px 40px">
+    <div class="btn-row">
+      <button class="btn-back" onclick="goBack()">← 返回</button>
+      <button class="btn-primary btn-main" onclick="showTreatment()">最後一題 →</button>
     </div>
   </div>
-  <div class="disease-grid">
-    <div class="disease-card"><div class="d-icon">🚪</div><div class="d-name">公關部大門 → 異位性皮膚炎</div><div class="d-desc">皮膚屏障受損，嗜酸球和Th2反應讓皮膚反覆發炎</div></div>
-    <div class="disease-card"><div class="d-icon">📬</div><div class="d-name">收發室 → 慢性鼻竇炎合併鼻息肉</div><div class="d-desc">鼻腔黏膜持續水腫、鼻息肉阻塞通道</div></div>
-    <div class="disease-card"><div class="d-icon">❄️</div><div class="d-name">空調機房 → 氣喘</div><div class="d-desc">嗜酸球浸潤讓支氣管壁增厚、氣道收縮</div></div>
-    <div class="disease-card"><div class="d-icon">🍜</div><div class="d-name">員工餐廳 → 嗜酸性食道炎</div><div class="d-desc">食道壁被嗜酸球滲入，吞嚥困難、管腔狹窄</div></div>
-  </div>
-  <div class="edu-hl">
-    <div class="edu-hl-title">「共病同治：一把鑰匙，開多扇門」</div>
-    <div class="edu-hl-text">因為這些疾病的根源都來自同一條發炎路徑（IL-4/IL-13/IL-5），針對這個核心進行調節，就有機會同時改善不同器官的症狀——讓一種治療，對付四種疾病。</div>
-  </div>
-  <div class="final-narr">「四個部門的騷動，原來不是外敵太強——而是公司的防禦機制本身出了問題。有時候，最需要管理的，是我們自己的反應。」</div>
-  <button class="btn-primary" onclick="showTreatment()" style="width:100%;margin-bottom:40px">最後一題 →</button>
 </div>
 
 <!-- ══ TREATMENT ══ -->
 <div id="screen-treatment" class="screen">
   <div style="padding-top:24px">
     <div class="treatment-header">
-      <span class="no-score-badge">非評分題</span>
       <h2 style="font-size:1.25rem;font-weight:700;margin-top:12px;color:var(--text)">
-        如果你或身邊的人有第二型發炎疾病，第一步你會怎麼做？
+        非評分題：如果你或身邊的人有第二型發炎疾病，第一步你會怎麼做？
       </h2>
     </div>
     <!-- 選項 2×2 -->
@@ -553,8 +570,8 @@ body{padding-top:56px}
         <div class="tr-opt-label">選項 B</div>
         <div class="tr-opt-text">💊 使用傳統藥物（類固醇、抗組織胺）控制症狀</div>
       </div>
-      <div class="tr-card highlight" onclick="selectTreatment('C',this)">
-        <div class="tr-opt-label">選項 C ✦ 推薦</div>
+      <div class="tr-card" onclick="selectTreatment('C',this)">
+        <div class="tr-opt-label">選項 C（推薦）</div>
         <div class="tr-opt-text">🎯 詢問醫師是否有針對發炎根源的新型療法</div>
       </div>
       <div class="tr-card" onclick="selectTreatment('D',this)">
@@ -574,9 +591,10 @@ body{padding-top:56px}
         </div>
       </div>
       <!-- 單一按鈕 -->
-      <button class="btn-primary" style="width:100%;margin-top:20px" onclick="showHPBoost()">
-        我想了解更多 →
-      </button>
+      <div class="btn-row" style="margin-top:20px">
+        <button class="btn-back" onclick="goBack()">← 返回</button>
+        <button class="btn-primary btn-main" onclick="showHPBoost()">我想了解更多 →</button>
+      </div>
     </div>
   </div>
 </div>
@@ -888,7 +906,7 @@ const PERSONAS = {
     desc:'團隊的號召者，喜歡團結所有人一起面對事情。只要偵測到異常，就會立刻釋放大量訊號（IL-4, IL-5, IL-13）動員全身，使系統過度活化，警戒解除了身體卻還在發炎。',
     belief:'您相信：一個人的力量有限，大家一起才夠強。讓大家都參與，比精準分工更重要。',
     bioTitle:'您在人體總公司的角色：ILC2細胞',
-    bio:'ILC2是第二型免疫反應的「第一聲警報」。它不需要抗原的精準匹配，只要偵測到危險訊號（IL-33、TSLP、IL-25），就立刻活化，迅速釋放大量IL-4、IL-5、IL-13，把整個第二型免疫系統動員起來。它的廣播有時讓系統過度激活。',
+    bio:'ILC2是第二型免疫反應的「第一聲警報」。它不需要抗原的精準匹配，只要偵測到危險訊號（IL-33、TSLP、IL-25），就立刻活化，迅速釋放大量IL-4、IL-5、IL-13，把整個第二型免疫系統動員起來。它的廣播有時讓系統過度活化。',
     strength:'感染力強、能快速凝聚共識、在混亂中帶來方向感',
     challenge:'學習在「動員大家」和「讓大家適時停下來」之間取得平衡'},
   S:{emoji:'🛡️',name:'創傷守舊派',cell:'記憶B細胞',discLabel:'DISC S型：穩健型（Steadiness）',colorVar:'var(--S)',
@@ -952,12 +970,12 @@ function drawBg(){
     p.x=(p.x+p.vx+bgCanvas.width)%bgCanvas.width;
     p.y=(p.y+p.vy+bgCanvas.height)%bgCanvas.height;
     bgCtx.beginPath();bgCtx.arc(p.x,p.y,p.r,0,Math.PI*2);
-    bgCtx.fillStyle=`rgba(123,45,139,${p.a})`;bgCtx.fill();
+    bgCtx.fillStyle=`rgba(80,140,185,${p.a})`;bgCtx.fill();
   });
   for(let i=0;i<pts.length;i++) for(let j=i+1;j<pts.length;j++){
     const dx=pts[j].x-pts[i].x,dy=pts[j].y-pts[i].y,d=Math.hypot(dx,dy);
     if(d<100){bgCtx.beginPath();bgCtx.moveTo(pts[i].x,pts[i].y);bgCtx.lineTo(pts[j].x,pts[j].y);
-      bgCtx.strokeStyle=`rgba(123,45,139,${.05*(1-d/100)})`;bgCtx.lineWidth=.5;bgCtx.stroke();}
+      bgCtx.strokeStyle=`rgba(80,140,185,${.06*(1-d/100)})`;bgCtx.lineWidth=.5;bgCtx.stroke();}
   }
   requestAnimationFrame(drawBg);
 }
@@ -1065,14 +1083,23 @@ document.getElementById('mute-btn').addEventListener('click',toggleMute);
 //  GAME STATE
 // ════════════════════════════════════════
 let G={};
-function reset(){G={scene:0,choices:[],hp:100,disc:{D:0,I:0,S:0,C:0},sel:null,pType:null,treatmentChoice:null,shareCount:0};}
+function reset(){G={scene:0,choices:[],hp:100,disc:{D:0,I:0,S:0,C:0},sel:null,pType:null,treatmentChoice:null,shareCount:0,history:[]};}
 
 // ════════════════════════════════════════
 //  SCREEN MANAGEMENT
 // ════════════════════════════════════════
 function showScreen(id){
+  const cur=document.querySelector('.screen.active');
+  if(cur&&cur.id!==id&&G.history){G.history.push(cur.id);}
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function goBack(){
+  if(!G.history||!G.history.length){showScreen('screen-intro');return;}
+  const prev=G.history.pop();
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(prev).classList.add('active');
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
@@ -1107,13 +1134,14 @@ function renderScene(){
   document.getElementById('s-badge').textContent=sc.badge;
   document.getElementById('s-dept').textContent=sc.dept;
   document.getElementById('s-title').textContent=sc.title;
-  // Scene background image
-  let bgImgEl=document.getElementById('s-bg-img');
-  if(!bgImgEl){bgImgEl=document.createElement('img');bgImgEl.id='s-bg-img';bgImgEl.className='scene-bg-img';}
-  if(sc.bgImg){bgImgEl.src=sc.bgImg;bgImgEl.style.display='block';}
-  else{bgImgEl.style.display='none';}
-  const titleEl=document.getElementById('s-title');
-  if(!titleEl.nextSibling||titleEl.nextSibling.id!=='s-bg-img') titleEl.after(bgImgEl);
+  // Scene background image (full-page CSS background)
+  if(sc.bgImg){
+    sceneEl.style.backgroundImage=`url(${sc.bgImg})`;
+    sceneEl.classList.add('has-bg');
+  } else {
+    sceneEl.style.backgroundImage='none';
+    sceneEl.classList.remove('has-bg');
+  }
   // Set situation text (preserve emoji span)
   const sitEl=document.getElementById('s-situation');
   const emojiSpan=document.getElementById('s-emoji');
@@ -1242,25 +1270,18 @@ function showPersonality(){
   const p=PERSONAS[winner];
   document.getElementById('personality-content').innerHTML=`
     <div class="cell-wrap">
-      <div class="cell-icon cell-${winner}">${p.emoji}</div>
       <div class="char-img-wrap">
-        <img class="char-img" src="${p.charImg||''}" alt="${p.name}"
+        <img class="char-img" src="${p.charImg||''}" alt="${p.cell}"
           onerror="this.style.display='none'">
       </div>
       <p class="p-disc-label">${p.discLabel}</p>
-      <h2 class="p-name" style="color:${p.colorVar}">${p.name}</h2>
-      <p class="p-cell-sub">人體總公司的 ${p.cell}</p>
+      <h2 class="p-name" style="color:${p.colorVar}">${p.cell}</h2>
     </div>
     <div class="p-card">
       <p class="p-quote">${p.quote}</p>
       <p class="p-desc">${p.desc}</p>
-      <p class="p-belief">${p.belief}</p>
       <p class="p-section">▶ ${p.bioTitle}</p>
       <p class="p-bio">${p.bio}</p>
-      <div class="sc-grid">
-        <div class="sc-box"><div class="sc-lbl">✦ 您的優勢</div><div class="sc-val">${p.strength}</div></div>
-        <div class="sc-box"><div class="sc-lbl">◈ 您的挑戰</div><div class="sc-val">${p.challenge}</div></div>
-      </div>
     </div>
     <p class="p-score">公司最終健康度：<strong style="color:var(--accent)">${G.hp} / 100</strong></p>`;
   showScreen('screen-personality');
@@ -1271,16 +1292,16 @@ function showPersonality(){
 // ════════════════════════════════════════
 function showCompat(){
   const pt=G.pType,c=COMPAT[pt],p=PERSONAS[pt];
-  document.getElementById('compat-my-name').textContent=`「${p.name}」`;
+  document.getElementById('compat-my-name').textContent=`「${p.cell}」`;
   const cardsEl=document.getElementById('compat-cards');cardsEl.innerHTML='';
   const order=[c.best,...c.others];
   order.forEach(type=>{
     const tp=PERSONAS[type];
     const card=document.createElement('div');card.className='compat-card';
     card.innerHTML=(type===c.best?`<div class="best-badge">最速配 ✦</div>`:'')
-      +`<div class="compat-emoji">${tp.emoji}</div>
+      +`<img class="compat-char-img" src="${tp.charImg||''}" alt="${tp.cell}" onerror="this.style.display='none'">
          <div class="compat-type" style="color:${tp.colorVar}">DISC ${type}型</div>
-         <div class="compat-cell">${tp.name}</div>`;
+         <div class="compat-cell">${tp.cell}</div>`;
     card.addEventListener('click',()=>showCompatReason(type,card));
     cardsEl.appendChild(card);
   });
@@ -1379,7 +1400,7 @@ function showShare(){
   const charImg=document.getElementById('share-char-img');
   charImg.src=p.charImg||'';
   charImg.style.display=p.charImg?'block':'none';
-  document.getElementById('share-persona-name').textContent=p.name;
+  document.getElementById('share-persona-name').textContent=p.cell;
   document.getElementById('share-persona-cell').textContent=`${p.discLabel.split('：')[0]}　|　人體總公司的 ${p.cell}`;
   document.getElementById('share-persona-desc').textContent=p.desc;
   document.getElementById('share-score-text').textContent=`${G.hp} / 100`;
@@ -1417,7 +1438,7 @@ function renderShareCanvas(){
   // Draw character image or emoji fallback
   const drawText=()=>{
     ctx.fillStyle='#fff';ctx.font='700 52px sans-serif';ctx.textAlign='center';
-    ctx.fillText(p.name,W/2,600);
+    ctx.fillText(p.cell,W/2,600);
     ctx.fillStyle='rgba(255,255,255,.7)';ctx.font='400 26px sans-serif';
     ctx.fillText(`人體總公司的 ${p.cell}`,W/2,648);
     ctx.font='300 22px sans-serif';
@@ -1446,22 +1467,21 @@ function renderShareCanvas(){
     ctx.fillText('#大腦糾察隊  #暴走分公司  #第二型發炎',W/2,920);
   };
 
+  const imgSize=320,imgX=(W-imgSize)/2,imgY=160;
   if(p.charImg){
-    const img=new Image();img.crossOrigin='anonymous';
-    img.onload=()=>{
-      // Draw char image centered
-      const imgSize=320,imgX=(W-imgSize)/2,imgY=160;
-      ctx.drawImage(img,imgX,imgY,imgSize,imgSize);
+    // Try reusing the already-loaded HTML image (faster, avoids CORS)
+    const existImg=document.getElementById('share-char-img');
+    if(existImg&&existImg.naturalWidth>0){
+      ctx.drawImage(existImg,imgX,imgY,imgSize,imgSize);
       drawText();
-    };
-    img.onerror=()=>{
-      // Fallback: emoji
-      ctx.font='120px serif';ctx.fillText(p.emoji,W/2,360);
-      drawText();
-    };
-    img.src=p.charImg;
+    } else {
+      const img=new Image();
+      img.onload=()=>{ctx.drawImage(img,imgX,imgY,imgSize,imgSize);drawText();};
+      img.onerror=()=>{ctx.font='100px serif';ctx.textAlign='center';ctx.fillText(p.emoji,W/2,360+imgSize/2);drawText();};
+      img.src=p.charImg;
+    }
   } else {
-    ctx.font='120px serif';ctx.fillText(p.emoji,W/2,360);
+    ctx.font='100px serif';ctx.textAlign='center';ctx.fillText(p.emoji,W/2,360+imgSize/2);
     drawText();
   }
 }
