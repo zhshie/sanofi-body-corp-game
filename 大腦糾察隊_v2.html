@@ -22,16 +22,15 @@ body{font-family:'Noto Sans TC',system-ui,sans-serif;background:var(--bg);color:
 #app{position:relative;z-index:1;min-height:100vh}
 
 /* ══ SANOFI TOPBAR ══ */
-#sanofi-topbar{position:fixed;top:0;left:0;width:100%;height:56px;background:var(--accent);
+#sanofi-topbar{position:fixed;top:0;left:0;width:100%;height:56px;background:var(--bg);
   display:flex;align-items:center;justify-content:space-between;padding:0 20px;z-index:900;
-  box-shadow:0 3px 12px rgba(123,45,139,.35)}
-#sanofi-topbar .tb-logo{color:#fff;font-style:italic;font-weight:700;font-size:1.55rem;
-  letter-spacing:.05em;opacity:.97;text-shadow:0 1px 4px rgba(0,0,0,.2)}
-.tb-logo-img{height:30px;object-fit:contain;display:block;
-  filter:invert(1);mix-blend-mode:screen}
+  box-shadow:0 2px 8px rgba(0,80,120,.15);border-bottom:1px solid var(--border)}
+#sanofi-topbar .tb-logo{color:var(--accent);font-style:italic;font-weight:700;font-size:1.55rem;
+  letter-spacing:.05em;opacity:.97}
+.tb-logo-img{height:30px;object-fit:contain;display:block}
 /* Hide topbar on fullscreen intro */
 body:has(#screen-intro.active) #sanofi-topbar{display:none}
-#sanofi-topbar .tb-title{color:rgba(255,255,255,.72);font-size:.7rem;letter-spacing:.1em;
+#sanofi-topbar .tb-title{color:var(--accent);font-size:.7rem;letter-spacing:.1em;
   text-align:right;line-height:1.4}
 body{padding-top:56px}
 
@@ -115,8 +114,10 @@ body{padding-top:56px}
 /* — Bottom panel (drawer sheet) — */
 #scene-panel{
   position:absolute;bottom:0;left:0;right:0;
-  height:62%;
-  background:rgba(255,255,255,.97);
+  height:93%;
+  background:rgba(255,255,255,.88);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
   border-radius:24px 24px 0 0;
   box-shadow:0 -8px 32px rgba(0,0,0,.3);
   overflow-y:auto;z-index:10;
@@ -425,6 +426,16 @@ body{padding-top:56px}
 .boost-celebrate{margin-top:20px;padding:16px;background:rgba(34,136,85,.08);border-radius:14px}
 @keyframes bounce-down{0%,100%{transform:translateY(0)}50%{transform:translateY(6px)}}
 
+/* ══ RECOVERY SCREEN ══ */
+#screen-recovery{
+  position:fixed;top:56px;left:0;right:0;
+  width:100%;max-width:none;height:calc(100vh - 56px);
+  overflow:hidden;background:#0a1a0a;padding:0;margin:0}
+#screen-recovery.active{display:block}
+@keyframes radialBurstGreen{
+  from{clip-path:circle(0% at 50% 50%);opacity:1}
+  to{clip-path:circle(75% at 50% 50%);opacity:0}}
+
 /* ══ CHAR IMG (personality) ══ */
 .char-img-wrap{text-align:center;margin:0 auto 16px}
 .char-img{width:200px;height:200px;object-fit:contain;display:block;margin:0 auto;
@@ -466,7 +477,7 @@ body{padding-top:56px}
 
 <div id="sanofi-topbar">
   <span id="logo-click-area" style="cursor:pointer">
-    <img src="sanofi_logo.png" class="tb-logo-img" alt="sanofi"
+    <img src="./plot/sanofi_logo.jpg" class="tb-logo-img" alt="sanofi"
       onerror="this.outerHTML='<span class=\'tb-logo\'>sanofi</span>'">
   </span>
   <span class="tb-title">🏢 人體總公司 危機管理系統</span>
@@ -591,7 +602,7 @@ body{padding-top:56px}
         非評分題：如果你或身邊的人有第二型發炎疾病，第一步你會怎麼做？
       </h2>
     </div>
-    <!-- 選項 2×2 -->
+    <!-- 階段 1：初選（選項 C 無「推薦」標示） -->
     <div class="tr-options" id="tr-options">
       <div class="tr-card" onclick="selectTreatment('A',this)">
         <div class="tr-opt-label">選項 A</div>
@@ -602,7 +613,7 @@ body{padding-top:56px}
         <div class="tr-opt-text">💊 使用傳統藥物（類固醇、抗組織胺）控制症狀</div>
       </div>
       <div class="tr-card" onclick="selectTreatment('C',this)">
-        <div class="tr-opt-label">選項 C（推薦）</div>
+        <div class="tr-opt-label">選項 C</div>
         <div class="tr-opt-text">🎯 詢問醫師是否有針對發炎根源的新型療法</div>
       </div>
       <div class="tr-card" onclick="selectTreatment('D',this)">
@@ -610,21 +621,37 @@ body{padding-top:56px}
         <div class="tr-opt-text">🔍 主動搜尋最新資訊，帶著資料去看診</div>
       </div>
     </div>
-    <!-- 評論區（選擇後顯示） -->
-    <div id="tr-commentary" style="display:none;margin-top:20px">
-      <div id="tr-comment-box" class="tr-comment-box"></div>
-      <!-- 統一衛教 -->
-      <div class="tr-edu-box">
-        <div class="tr-edu-title">🔬 關於第二型發炎，醫學怎麼說？</div>
-        <div class="tr-edu-text">
-          不論您選哪個，了解根源才是關鍵。四種疾病——異位性皮膚炎、慢性鼻竇炎合併鼻息肉、氣喘、嗜酸性食道炎——都源自同一條 IL-4/IL-13/IL-5 發炎路徑。
-          新型生物製劑（如 Dupilumab）直接阻斷這條路徑，有機會「一把鑰匙，開多扇門」，同時改善多個器官的症狀。
+    <!-- 階段 1 按鈕（初選後顯示） -->
+    <div id="tr-phase1-btn" style="display:none;margin-top:18px">
+      <button class="btn-primary" style="width:100%" onclick="enterTreatmentExplore()">
+        看看其他選項 →
+      </button>
+    </div>
+    <!-- 階段 2：探索模式（初始隱藏） -->
+    <div id="tr-explore" style="display:none;margin-top:24px">
+      <h3 style="font-size:1rem;font-weight:700;color:var(--text);margin-bottom:12px">
+        各個選項的說明：
+      </h3>
+      <!-- 探索選項（動態渲染，選項 C 含「推薦」標示） -->
+      <div class="tr-options" id="tr-explore-options"></div>
+      <!-- 評論區（點選選項後顯示） -->
+      <div id="tr-commentary" style="display:none;margin-top:16px">
+        <div id="tr-comment-box" class="tr-comment-box"></div>
+        <!-- 統一衛教 -->
+        <div class="tr-edu-box">
+          <div class="tr-edu-title">🔬 關於第二型發炎，醫學怎麼說？</div>
+          <div class="tr-edu-text">
+            不論您選哪個，了解根源才是關鍵。四種疾病——異位性皮膚炎、慢性鼻竇炎合併鼻息肉、氣喘、嗜酸性食道炎——都源自同一條 IL-4/IL-13/IL-5 發炎路徑。
+            新型生物製劑（如 Dupilumab）直接阻斷這條路徑，有機會「一把鑰匙，開多扇門」，同時改善多個器官的症狀。
+          </div>
         </div>
       </div>
-      <!-- 單一按鈕 -->
-      <div class="btn-row" style="margin-top:20px">
-        <button class="btn-back" onclick="goBack()">← 返回</button>
-        <button class="btn-primary btn-main" onclick="showHPBoost()">我想了解更多 →</button>
+      <!-- 繼續按鈕（有說明後顯示） -->
+      <div id="tr-explore-btn" style="display:none;margin-top:20px">
+        <div class="btn-row">
+          <button class="btn-back" onclick="goBack()">← 返回</button>
+          <button class="btn-primary btn-main" onclick="showHPBoost()">我想了解更多 →</button>
+        </div>
       </div>
     </div>
   </div>
@@ -664,18 +691,32 @@ body{padding-top:56px}
     <div class="boost-celebrate" id="boost-celebrate" style="display:none">
       <div style="font-size:2.5rem;animation:pulse 1s infinite">🎊</div>
       <p style="font-weight:700;color:var(--S);font-size:1rem;margin-top:6px">公司恢復健康運作中！</p>
+      <p style="font-size:.82rem;color:var(--text-dim);margin-top:4px">即將前往下一個畫面…</p>
     </div>
-    <div style="margin-top:24px">
-      <p style="font-size:.8rem;color:var(--text-dim);margin-bottom:14px">
-        ⚠️ 如有相關症狀，請諮詢您的醫師，了解適合您的治療選擇。
-      </p>
-      <button class="btn-primary" style="width:100%;margin-bottom:10px"
+    <p style="font-size:.8rem;color:var(--text-dim);margin-top:20px">
+      ⚠️ 如有相關症狀，請諮詢您的醫師，了解適合您的治療選擇。
+    </p>
+  </div>
+</div>
+
+<!-- ══ RECOVERY ══ -->
+<div id="screen-recovery" class="screen">
+  <img id="recovery-bg-img" src="" alt="公司恢復健康"
+    style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;object-position:center top;z-index:0;opacity:0;transition:opacity .5s ease">
+  <div id="recovery-gradient"
+    style="position:absolute;bottom:0;left:0;right:0;height:55%;z-index:1;pointer-events:none;background:linear-gradient(to bottom,transparent,rgba(0,20,0,.6))"></div>
+  <div id="recovery-panel"
+    style="position:absolute;bottom:0;left:0;right:0;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:24px 24px 0 0;padding:28px 24px 40px;z-index:10;box-shadow:0 -8px 32px rgba(0,0,0,.3);transform:translateY(100%);transition:transform .5s cubic-bezier(.34,1.56,.64,1)">
+    <h2 style="font-size:1.5rem;font-weight:700;color:var(--S);text-align:center;margin-bottom:8px">🎊 公司恢復健康！</h2>
+    <p style="font-size:.9rem;color:var(--text-dim);text-align:center;line-height:1.7;margin-bottom:24px">感謝您的危機管理！人體總公司已重新正常運作。</p>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <button class="btn-primary" style="width:100%"
         onclick="window.open('https://www.youtube.com/watch?v=plLExQ1oRxQ','_blank')">
-        🎬 了解更多（影片）→
+        🎬 了解更多 →
       </button>
       <button class="btn-primary" style="width:100%;background:var(--surface);color:var(--accent);border:1.5px solid var(--accent)"
         onclick="showShare()">
-        查看我的完整結果 →
+        📊 察看結果 →
       </button>
     </div>
   </div>
@@ -923,7 +964,7 @@ const SCENES = [
 // ════════════════════════════════════════
 const PERSONAS = {
   D:{emoji:'⚡',name:'暴走安管主管',cell:'嗜酸性球',discLabel:'DISC D型：主導型（Dominance）',colorVar:'var(--D)',
-    charImg:'plot/char_D.png',
+    charImg:'plot/char_D.png    ← 嗜酸性球去背.png',
     quote:'「您的本能，是砸爛問題，連同牆壁一起。」',
     desc:'行動力極強，喜歡直接對決。為了消滅過敏原，不惜讓組織受損，引發氣管增厚、皮膚損傷。',
     belief:'您相信：行動比分析更重要。勝利比過程更重要。',
@@ -932,7 +973,7 @@ const PERSONAS = {
     strength:'果決、行動力強、危機中讓人安心',
     challenge:'學習在「做得快」和「做得對」之間找到平衡'},
   I:{emoji:'📢',name:'恐慌廣播員',cell:'ILC2細胞',discLabel:'DISC I型：影響型（Influence）',colorVar:'var(--I)',
-    charImg:'plot/char_I.png',
+    charImg:'plot/char_I.png    ←  ILC2 細胞去背.png',
     quote:'「您的本能，是拿大聲公讓全公司一起焦慮。」',
     desc:'團隊的號召者，喜歡團結所有人一起面對事情。只要偵測到異常，就會立刻釋放大量訊號（IL-4, IL-5, IL-13）動員全身，使系統過度活化，警戒解除了身體卻還在發炎。',
     belief:'您相信：一個人的力量有限，大家一起才夠強。讓大家都參與，比精準分工更重要。',
@@ -941,7 +982,7 @@ const PERSONAS = {
     strength:'感染力強、能快速凝聚共識、在混亂中帶來方向感',
     challenge:'學習在「動員大家」和「讓大家適時停下來」之間取得平衡'},
   S:{emoji:'🛡️',name:'創傷守舊派',cell:'記憶B細胞',discLabel:'DISC S型：穩健型（Steadiness）',colorVar:'var(--S)',
-    charImg:'plot/char_S.png',
+    charImg:'plot/char_S.png    ← 記憶 B 細胞去背.png',
     quote:'「您的本能，是抱著十年前的客訴單瑟瑟發抖。」',
     desc:'經驗豐富（IgE 記憶），喜歡選擇最保守穩定的做法。IgE 記憶對付寄生蟲很有用，但在過敏反應中，易對無害的物質（如塵蟎、花粉）產生不必要的反應。',
     belief:'您相信：穩定比速度重要。已知的風險，比未知的行動更可預期。',
@@ -950,7 +991,7 @@ const PERSONAS = {
     strength:'可靠、對熟悉情境反應快、讓人有安全感',
     challenge:'學習區分「過去的威脅」和「現在的實際狀況」是否真的一樣'},
   C:{emoji:'🔬',name:'精準協調大師',cell:'Th2細胞',discLabel:'DISC C型：謹慎型（Conscientiousness）',colorVar:'var(--C)',
-    charImg:'plot/char_C.png',
+    charImg:'plot/char_C.png    ← Th2 細胞去背.png',
     quote:'「您的本能，是先寫完 SOP 再來處理危機。」',
     desc:'先計劃再行動，謹慎小心的謀略者。精準調控每一次的反應規模，但當訊號失控時，會使整個公司陷入慢性發炎與過敏。',
     belief:'您相信：做對比做快更重要。精準的行動，比快速的行動更有價值。',
@@ -1114,7 +1155,7 @@ document.getElementById('mute-btn').addEventListener('click',toggleMute);
 //  GAME STATE
 // ════════════════════════════════════════
 let G={};
-function reset(){G={scene:0,choices:[],hp:100,disc:{D:0,I:0,S:0,C:0},sel:null,pType:null,treatmentChoice:null,shareCount:0,history:[]};}
+function reset(){G={scene:0,choices:[],hp:100,disc:{D:0,I:0,S:0,C:0},sel:null,pType:null,treatmentChoice:null,firstTrChoice:null,shareCount:0,history:[]};}
 
 // ════════════════════════════════════════
 //  SCREEN MANAGEMENT
@@ -1132,6 +1173,12 @@ function goBack(){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(prev).classList.add('active');
   window.scrollTo({top:0,behavior:'smooth'});
+  // 返回場景頁時重啟面板動畫
+  if(prev==='screen-scene'){
+    if(G.scene>=SCENES.length) G.scene=SCENES.length-1;
+    renderScene();
+    enterScene();
+  }
 }
 
 // ════════════════════════════════════════
@@ -1212,13 +1259,13 @@ function enterScene(){
     bgImg.src='';
   }
 
-  // 面板從底部滑入（150ms 後啟動，讓圖先出現）
+  // 面板從底部滑入（1500ms 後啟動，讓背景圖先停留）
   panel.classList.remove('exit','enter');
   panel.style.transform='translateY(110%)';
   setTimeout(()=>{
     panel.style.transform='';
     panel.classList.add('enter');
-  },150);
+  },1500);
 }
 
 function pickOpt(idx){
@@ -1268,8 +1315,8 @@ function nextScene(){
         radial.classList.remove('burst');
         panel.scrollTop=0;
         panel.classList.remove('exit');
-        setTimeout(()=>panel.classList.add('enter'),30);
-      },750);
+        setTimeout(()=>panel.classList.add('enter'),600);
+      },900);
 
     } else {
       playRelax();showReview();
@@ -1435,19 +1482,60 @@ const TREATMENT_DATA = {
   }
 };
 
-function showTreatment(){showScreen('screen-treatment');}
+// 選項文字（供探索模式重用）
+const TR_OPT_TEXTS = {
+  A:'⏳ 觀察等待，相信身體能自己調節',
+  B:'💊 使用傳統藥物（類固醇、抗組織胺）控制症狀',
+  C:'🎯 詢問醫師是否有針對發炎根源的新型療法',
+  D:'🔍 主動搜尋最新資訊，帶著資料去看診'
+};
+
+function showTreatment(){
+  // 重設治療頁狀態
+  document.getElementById('tr-phase1-btn').style.display='none';
+  document.getElementById('tr-explore').style.display='none';
+  document.getElementById('tr-commentary').style.display='none';
+  document.getElementById('tr-explore-btn').style.display='none';
+  document.querySelectorAll('#tr-options .tr-card').forEach(c=>{
+    c.style.opacity=''; c.style.borderColor='';
+  });
+  showScreen('screen-treatment');
+}
 
 function selectTreatment(opt,el){
   G.treatmentChoice=opt;
+  G.firstTrChoice=opt; // 記錄初選
   // 視覺：高亮選中的卡片
-  document.querySelectorAll('.tr-card').forEach(c=>{
+  document.querySelectorAll('#tr-options .tr-card').forEach(c=>{
     c.style.opacity='.45'; c.style.borderColor='';
   });
   el.style.opacity='1'; el.style.borderColor='var(--accent)';
-  // 顯示評論區
-  const commentary=document.getElementById('tr-commentary');
-  commentary.style.display='block';
-  commentary.scrollIntoView({behavior:'smooth',block:'start'});
+  // 顯示「看看其他選項」按鈕（不立即顯示說明）
+  document.getElementById('tr-phase1-btn').style.display='block';
+  document.getElementById('tr-phase1-btn').scrollIntoView({behavior:'smooth',block:'start'});
+  submitToSheets();
+}
+
+function enterTreatmentExplore(){
+  document.getElementById('tr-phase1-btn').style.display='none';
+  const exploreEl=document.getElementById('tr-explore');
+  exploreEl.style.display='block';
+  // 渲染探索模式選項（C 加「推薦」標示）
+  document.getElementById('tr-explore-options').innerHTML=['A','B','C','D'].map(o=>
+    `<div class="tr-card" onclick="showTreatmentComment('${o}',this)">
+      <div class="tr-opt-label">選項 ${o}${o==='C'?' （推薦）':''}</div>
+      <div class="tr-opt-text">${TR_OPT_TEXTS[o]}</div>
+    </div>`
+  ).join('');
+  exploreEl.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function showTreatmentComment(opt,el){
+  // 高亮選中的探索卡片
+  document.querySelectorAll('#tr-explore-options .tr-card').forEach(c=>{
+    c.style.opacity='.45'; c.style.borderColor='';
+  });
+  el.style.opacity='1'; el.style.borderColor='var(--accent)';
   // 填入醫療評論
   const data=TREATMENT_DATA[opt];
   document.getElementById('tr-comment-box').innerHTML=`
@@ -1455,7 +1543,10 @@ function selectTreatment(opt,el){
     <div class="tr-comment-title">您選擇了：${data.title}</div>
     <div class="tr-comment-verdict" style="color:${data.verdictColor}">${data.verdict}</div>
     <div class="tr-comment-text">${data.text}</div>`;
-  submitToSheets();
+  const commentary=document.getElementById('tr-commentary');
+  commentary.style.display='block';
+  document.getElementById('tr-explore-btn').style.display='block';
+  commentary.scrollIntoView({behavior:'smooth',block:'start'});
 }
 
 function showHPBoost(){
@@ -1463,9 +1554,14 @@ function showHPBoost(){
   const before=G.hp;
   const boost=Math.min(20, 100-before); // 最多+20，不超過100
   const after=before+boost;
+  // 重設慶祝區
+  document.getElementById('boost-celebrate').style.display='none';
   // 填入數字
   document.getElementById('boost-num-before').textContent=`${before} / 100`;
   document.getElementById('boost-num-after').textContent=`${after} / 100`;
+  // 重設血量條
+  document.getElementById('boost-bar-before').style.width='0%';
+  document.getElementById('boost-bar-after').style.width='0%';
   // 動畫
   setTimeout(()=>{
     document.getElementById('boost-bar-before').style.width=before+'%';
@@ -1476,6 +1572,30 @@ function showHPBoost(){
   setTimeout(()=>{
     document.getElementById('boost-celebrate').style.display='block';
   },2500);
+  // 慶祝 1500ms 後轉場到公司恢復畫面
+  setTimeout(()=>showRecovery(), 4000);
+}
+
+function showRecovery(){
+  // 建立綠色輻射轉場 overlay
+  const overlay=document.createElement('div');
+  overlay.style.cssText='position:fixed;inset:0;z-index:9000;pointer-events:none;'+
+    'background:radial-gradient(circle,rgba(34,136,85,.9) 0%,rgba(0,20,10,.7) 60%,transparent 100%);'+
+    'animation:radialBurstGreen .65s ease-out forwards';
+  document.body.appendChild(overlay);
+  setTimeout(()=>{
+    showScreen('screen-recovery');
+    const bgImg=document.getElementById('recovery-bg-img');
+    bgImg.style.opacity='0';
+    bgImg.src='plot/scene6.png    ← 公司恢復健康.png';
+    bgImg.onload=()=>{ bgImg.style.opacity='1'; };
+    bgImg.onerror=()=>{};
+    overlay.remove();
+    // 面板從下滑入
+    setTimeout(()=>{
+      document.getElementById('recovery-panel').style.transform='translateY(0)';
+    },400);
+  },600);
 }
 
 // ════════════════════════════════════════
