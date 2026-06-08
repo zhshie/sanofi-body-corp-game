@@ -83,25 +83,58 @@ body{padding-top:56px}
 .btn-primary:hover{background:var(--accent2);box-shadow:0 6px 20px rgba(123,45,139,.3);transform:translateY(-2px)}
 
 /* ══ SCENE ══ */
-#screen-scene{background-size:cover;background-position:center top;background-attachment:fixed;
-  transition:background-image .3s;position:relative;min-height:calc(100vh - 56px)}
-#scene-overlay{position:fixed;inset:0;top:56px;background:rgba(0,0,0,.45);z-index:0;
-  pointer-events:none;display:none}
-#screen-scene.has-bg #scene-overlay{display:block}
-#screen-scene.has-bg .scene-wrap{position:relative;z-index:1}
-#screen-scene.has-bg .situation-box{background:rgba(255,255,255,.88);border-left-color:var(--scene-color)}
-#screen-scene.has-bg .narrator-bubble{background:rgba(255,255,255,.92)}
-#screen-scene.has-bg .reveal-box{background:rgba(243,234,251,.93)}
-#screen-scene.has-bg .s-title{color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.7)}
-#screen-scene.has-bg .s-dept{color:rgba(255,255,255,.75)}
-#screen-scene.has-bg .scene-color-bar{opacity:1}
-#screen-scene.has-bg .pdot{background:rgba(255,255,255,.4)}
-#screen-scene.has-bg .pdot.done{background:var(--scene-color);opacity:.7}
-#screen-scene.has-bg .pdot.active{background:#fff;box-shadow:0 0 8px #fff}
-.scene-wrap{padding-top:16px}
-.scene-color-bar{height:4px;background:var(--scene-color);border-radius:2px;margin-bottom:20px;
-  transition:background .4s ease;opacity:.85}
-.progress{display:flex;gap:7px;margin-bottom:16px}
+/* — Screen (position:fixed fullscreen, no scroll) — */
+#screen-scene{
+  position:fixed;top:56px;left:0;right:0;
+  width:100%;max-width:none;height:calc(100vh - 56px);
+  overflow:hidden;background:#0a0a1a;padding:0;margin:0}
+#screen-scene.active{display:block}
+/* — Background image: contain = full image, no crop, no stretch — */
+#scene-bg-img{
+  position:absolute;top:0;left:0;
+  width:100%;height:100%;
+  object-fit:contain;object-position:center top;
+  z-index:0;opacity:0;transition:opacity .4s ease}
+#scene-bg-img.visible{opacity:1}
+/* — Gradient: image fades into panel — */
+#scene-gradient{
+  position:absolute;bottom:0;left:0;right:0;
+  height:55%;z-index:1;pointer-events:none;
+  background:linear-gradient(to bottom,transparent 0%,rgba(0,0,0,.55) 100%)}
+/* — Radial burst overlay (scene transition) — */
+#scene-radial{
+  position:absolute;inset:0;z-index:5;
+  pointer-events:none;opacity:0;
+  background:radial-gradient(circle,rgba(123,45,139,.85) 0%,rgba(20,0,40,.6) 60%,transparent 100%);
+  clip-path:circle(0% at 50% 35%)}
+@keyframes radialBurst{
+  0%  {clip-path:circle(0% at 50% 35%);opacity:.85}
+  50% {clip-path:circle(80% at 50% 35%);opacity:.9}
+  100%{clip-path:circle(150% at 50% 35%);opacity:0}}
+#scene-radial.burst{animation:radialBurst .65s ease-out forwards}
+/* — Bottom panel (drawer sheet) — */
+#scene-panel{
+  position:absolute;bottom:0;left:0;right:0;
+  height:62%;
+  background:rgba(255,255,255,.97);
+  border-radius:24px 24px 0 0;
+  box-shadow:0 -8px 32px rgba(0,0,0,.3);
+  overflow-y:auto;z-index:10;
+  transform:translateY(110%)}
+#scene-panel::before{
+  content:'';display:block;
+  width:36px;height:4px;background:rgba(0,0,0,.18);
+  border-radius:2px;margin:12px auto 4px}
+.scene-panel-inner{padding:0 20px 32px}
+/* — Panel slide animations — */
+@keyframes panelUp{from{transform:translateY(110%)}to{transform:translateY(0)}}
+@keyframes panelDown{from{transform:translateY(0)}to{transform:translateY(110%)}}
+#scene-panel.enter{animation:panelUp .5s cubic-bezier(.34,1.56,.64,1) forwards}
+#scene-panel.exit{animation:panelDown .35s ease-in forwards}
+/* — Panel inner content — */
+.scene-color-bar{height:4px;background:var(--scene-color);border-radius:2px;margin-bottom:16px;
+  transition:background .4s ease}
+.progress{display:flex;gap:7px;margin-bottom:14px}
 .pdot{width:8px;height:8px;border-radius:50%;background:var(--border);transition:all .3s}
 .pdot.done{background:var(--scene-color);opacity:.4}
 .pdot.active{background:var(--scene-color);box-shadow:0 0 8px var(--scene-color)}
@@ -131,7 +164,7 @@ body{padding-top:56px}
 /* options 2×2 grid */
 .options{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 @media(max-width:560px){.options{grid-template-columns:1fr}}
-.opt-card{background:rgba(255,255,255,.93);border:1.5px solid var(--border);border-radius:14px;
+.opt-card{background:#fff;border:1.5px solid var(--border);border-radius:14px;
   padding:14px 16px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;text-align:left}
 .opt-card::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%;
   background:var(--scene-color);transform:scaleY(0);transition:transform .2s;transform-origin:bottom}
@@ -148,9 +181,6 @@ body{padding-top:56px}
 .btn-next.on{opacity:1;pointer-events:auto;cursor:pointer;color:var(--scene-color);
   border-color:var(--scene-color);background:rgba(255,255,255,.92)}
 .btn-next.on:hover{background:var(--scene-color);color:#fff}
-/* when has-bg, btn-next gets semi-transparent bg */
-#screen-scene.has-bg .btn-next{background:rgba(255,255,255,.88)}
-#screen-scene.has-bg .btn-back{background:rgba(255,255,255,.8)}
 .btn-row{margin-top:18px}
 
 /* scene5 deep purple overrides */
@@ -395,9 +425,6 @@ body{padding-top:56px}
 .boost-celebrate{margin-top:20px;padding:16px;background:rgba(34,136,85,.08);border-radius:14px}
 @keyframes bounce-down{0%,100%{transform:translateY(0)}50%{transform:translateY(6px)}}
 
-/* ══ SCENE BG IMG (hidden — now used as CSS background) ══ */
-.scene-bg-img{display:none!important}
-
 /* ══ CHAR IMG (personality) ══ */
 .char-img-wrap{text-align:center;margin:0 auto 16px}
 .char-img{width:200px;height:200px;object-fit:contain;display:block;margin:0 auto;
@@ -473,22 +500,26 @@ body{padding-top:56px}
 
 <!-- ══ SCENE ══ -->
 <div id="screen-scene" class="screen">
-  <div id="scene-overlay"></div>
-  <div class="scene-wrap">
-    <div class="scene-color-bar" id="scene-color-bar"></div>
-    <div class="progress" id="pdots"></div>
-    <div class="s-badge" id="s-badge"></div>
-    <div class="s-dept" id="s-dept"></div>
-    <h2 class="s-title" id="s-title"></h2>
-    <div class="situation-box" id="s-situation">
-      <span class="situation-emoji" id="s-emoji"></span>
-    </div>
-    <div id="s-narrator"></div>
-    <p class="question-text" id="s-question">您會怎麼下令？</p>
-    <div class="options" id="s-options"></div>
-    <div class="btn-row">
-      <button class="btn-back" onclick="goBack()">← 返回</button>
-      <button class="btn-next btn-main" id="btn-next" onclick="nextScene()">確認決策 →</button>
+  <img id="scene-bg-img" src="" alt="">
+  <div id="scene-gradient"></div>
+  <div id="scene-radial"></div>
+  <div id="scene-panel">
+    <div class="scene-panel-inner">
+      <div class="scene-color-bar" id="scene-color-bar"></div>
+      <div class="progress" id="pdots"></div>
+      <div class="s-badge" id="s-badge"></div>
+      <div class="s-dept" id="s-dept"></div>
+      <h2 class="s-title" id="s-title"></h2>
+      <div class="situation-box" id="s-situation">
+        <span class="situation-emoji" id="s-emoji"></span>
+      </div>
+      <div id="s-narrator"></div>
+      <p class="question-text" id="s-question">您會怎麼下令？</p>
+      <div class="options" id="s-options"></div>
+      <div class="btn-row">
+        <button class="btn-back" onclick="goBack()">← 返回</button>
+        <button class="btn-next btn-main" id="btn-next" onclick="nextScene()">確認決策 →</button>
+      </div>
     </div>
   </div>
 </div>
@@ -1112,6 +1143,7 @@ function startGame(){
   playTense();
   showScreen('screen-scene');
   renderScene();
+  enterScene();
 }
 
 function renderScene(){
@@ -1134,14 +1166,6 @@ function renderScene(){
   document.getElementById('s-badge').textContent=sc.badge;
   document.getElementById('s-dept').textContent=sc.dept;
   document.getElementById('s-title').textContent=sc.title;
-  // Scene background image (full-page CSS background)
-  if(sc.bgImg){
-    sceneEl.style.backgroundImage=`url(${sc.bgImg})`;
-    sceneEl.classList.add('has-bg');
-  } else {
-    sceneEl.style.backgroundImage='none';
-    sceneEl.classList.remove('has-bg');
-  }
   // Set situation text (preserve emoji span)
   const sitEl=document.getElementById('s-situation');
   const emojiSpan=document.getElementById('s-emoji');
@@ -1173,6 +1197,30 @@ function renderScene(){
   btn.textContent=G.scene<4?`確認決策，前往場景 ${G.scene+2} →`:'確認決策，查看年度考核 →';
 }
 
+function enterScene(){
+  const bgImg=document.getElementById('scene-bg-img');
+  const panel=document.getElementById('scene-panel');
+  const sc=SCENES[G.scene];
+
+  // 設定背景圖（fade-in）
+  bgImg.classList.remove('visible');
+  if(sc.bgImg){
+    bgImg.src=sc.bgImg;
+    bgImg.onload=()=>bgImg.classList.add('visible');
+    bgImg.onerror=()=>{};
+  } else {
+    bgImg.src='';
+  }
+
+  // 面板從底部滑入（150ms 後啟動，讓圖先出現）
+  panel.classList.remove('exit','enter');
+  panel.style.transform='translateY(110%)';
+  setTimeout(()=>{
+    panel.style.transform='';
+    panel.classList.add('enter');
+  },150);
+}
+
 function pickOpt(idx){
   G.sel=idx;
   document.querySelectorAll('.opt-card').forEach((c,i)=>c.classList.toggle('selected',i===idx));
@@ -1183,9 +1231,50 @@ function pickOpt(idx){
 function nextScene(){
   if(G.sel===null)return;
   const sc=SCENES[G.scene];const chosen=sc.options[G.sel];
-  G.choices.push({sc,chosen});G.hp+=chosen.hp;G.disc[chosen.disc]++;G.scene++;
-  if(G.scene<SCENES.length){renderScene();}
-  else{playRelax();showReview();}
+  G.choices.push({sc,chosen});G.hp+=chosen.hp;G.disc[chosen.disc]++;
+
+  const panel=document.getElementById('scene-panel');
+  const radial=document.getElementById('scene-radial');
+  const bgImg=document.getElementById('scene-bg-img');
+
+  // Phase 1: 面板向下滑出
+  panel.classList.remove('enter');
+  panel.classList.add('exit');
+
+  setTimeout(()=>{
+    G.scene++;
+    if(G.scene<SCENES.length){
+      // Phase 2: 輻射遮罩爆破
+      radial.classList.remove('burst');
+      void radial.offsetWidth; // reflow to restart animation
+      radial.classList.add('burst');
+
+      // Phase 3: 換圖（在輻射遮罩覆蓋中途）
+      setTimeout(()=>{
+        renderScene();
+        bgImg.classList.remove('visible');
+        const nextSc=SCENES[G.scene];
+        if(nextSc.bgImg){
+          bgImg.src=nextSc.bgImg;
+          bgImg.onload=()=>bgImg.classList.add('visible');
+          bgImg.onerror=()=>{};
+        } else {
+          bgImg.src='';
+        }
+      },300);
+
+      // Phase 4: 遮罩淡出 + 新面板入場（捲回頂端）
+      setTimeout(()=>{
+        radial.classList.remove('burst');
+        panel.scrollTop=0;
+        panel.classList.remove('exit');
+        setTimeout(()=>panel.classList.add('enter'),30);
+      },750);
+
+    } else {
+      playRelax();showReview();
+    }
+  },300);
 }
 
 // ════════════════════════════════════════
