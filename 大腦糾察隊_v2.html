@@ -114,7 +114,7 @@ body{padding-top:56px}
 /* — Bottom panel (drawer sheet) — */
 #scene-panel{
   position:absolute;bottom:0;left:0;right:0;
-  height:93%;
+  height:100%;
   background:rgba(255,255,255,.75);
   backdrop-filter:blur(10px);
   -webkit-backdrop-filter:blur(10px);
@@ -601,7 +601,7 @@ body{padding-top:56px}
 
 <!-- ══ EDU ══ -->
 <div id="screen-edu" class="screen" style="padding:0">
-  <img src="plot/衛教.png" style="width:100%;display:block" alt="第二型發炎衛教"
+  <img src="plot/edu.png" style="width:100%;display:block" alt="第二型發炎衛教"
     onerror="this.style.display='none'">
   <div style="padding:16px 20px 40px">
     <div class="btn-row">
@@ -640,7 +640,7 @@ body{padding-top:56px}
     </div>
     <!-- 階段 1 按鈕（初選後顯示） -->
     <div id="tr-phase1-btn" style="display:none;margin-top:18px">
-      <button class="btn-primary" style="width:100%" onclick="enterTreatmentExplore()">
+      <button class="btn-primary" style="width:100%" onclick="showHPBoost()">
         看看結果 →
       </button>
     </div>
@@ -727,10 +727,10 @@ body{padding-top:56px}
     <h2 style="font-size:1.5rem;font-weight:700;color:var(--S);text-align:center;margin-bottom:8px">🎊 公司恢復健康！</h2>
     <p style="font-size:.9rem;color:var(--text-dim);text-align:center;line-height:1.7;margin-bottom:24px">感謝您的危機管理！人體總公司已重新正常運作。</p>
     <div style="display:flex;flex-direction:column;gap:12px">
-      <button class="btn-primary" style="width:100%"
-        onclick="window.open('https://www.youtube.com/watch?v=plLExQ1oRxQ','_blank')">
+      <a href="https://www.youtube.com/watch?v=plLExQ1oRxQ" target="_blank" rel="noopener noreferrer"
+        class="btn-primary" style="display:block;text-decoration:none;text-align:center;box-sizing:border-box">
         🎬 了解更多 →
-      </button>
+      </a>
       <button class="btn-primary" style="width:100%;background:var(--surface);color:var(--accent);border:1.5px solid var(--accent)"
         onclick="showShare()">
         📊 察看結果 →
@@ -981,7 +981,7 @@ const SCENES = [
 // ════════════════════════════════════════
 const PERSONAS = {
   D:{emoji:'⚡',name:'暴走安管主管',cell:'嗜酸性球',discLabel:'DISC D型：主導型（Dominance）',colorVar:'var(--D)',
-    charImg:'plot/char_D.png    ← 嗜酸性球去背.png',
+    charImg:'plot/char_D.png',
     quote:'「您的本能，是砸爛問題，連同牆壁一起。」',
     desc:'行動力極強，喜歡直接對決。為了消滅過敏原，不惜讓組織受損，引發氣管增厚、皮膚損傷。',
     belief:'您相信：行動比分析更重要。勝利比過程更重要。',
@@ -990,7 +990,7 @@ const PERSONAS = {
     strength:'果決、行動力強、危機中讓人安心',
     challenge:'學習在「做得快」和「做得對」之間找到平衡'},
   I:{emoji:'📢',name:'恐慌廣播員',cell:'ILC2細胞',discLabel:'DISC I型：影響型（Influence）',colorVar:'var(--I)',
-    charImg:'plot/char_I.png    ←  ILC2 細胞去背.png',
+    charImg:'plot/char_I.png',
     quote:'「您的本能，是拿大聲公讓全公司一起焦慮。」',
     desc:'團隊的號召者，喜歡團結所有人一起面對事情。只要偵測到異常，就會立刻釋放大量訊號（IL-4, IL-5, IL-13）動員全身，使系統過度活化，警戒解除了身體卻還在發炎。',
     belief:'您相信：一個人的力量有限，大家一起才夠強。讓大家都參與，比精準分工更重要。',
@@ -999,7 +999,7 @@ const PERSONAS = {
     strength:'感染力強、能快速凝聚共識、在混亂中帶來方向感',
     challenge:'學習在「動員大家」和「讓大家適時停下來」之間取得平衡'},
   S:{emoji:'🛡️',name:'創傷守舊派',cell:'記憶B細胞',discLabel:'DISC S型：穩健型（Steadiness）',colorVar:'var(--S)',
-    charImg:'plot/char_S.png    ← 記憶 B 細胞去背.png',
+    charImg:'plot/char_S.png',
     quote:'「您的本能，是抱著十年前的客訴單瑟瑟發抖。」',
     desc:'經驗豐富（IgE 記憶），喜歡選擇最保守穩定的做法。IgE 記憶對付寄生蟲很有用，但在過敏反應中，易對無害的物質（如塵蟎、花粉）產生不必要的反應。',
     belief:'您相信：穩定比速度重要。已知的風險，比未知的行動更可預期。',
@@ -1008,7 +1008,7 @@ const PERSONAS = {
     strength:'可靠、對熟悉情境反應快、讓人有安全感',
     challenge:'學習區分「過去的威脅」和「現在的實際狀況」是否真的一樣'},
   C:{emoji:'🔬',name:'精準協調大師',cell:'Th2細胞',discLabel:'DISC C型：謹慎型（Conscientiousness）',colorVar:'var(--C)',
-    charImg:'plot/char_C.png    ← Th2 細胞去背.png',
+    charImg:'plot/char_C.png',
     quote:'「您的本能，是先寫完 SOP 再來處理危機。」',
     desc:'先計劃再行動，謹慎小心的謀略者。精準調控每一次的反應規模，但當訊號失控時，會使整個公司陷入慢性發炎與過敏。',
     belief:'您相信：做對比做快更重要。精準的行動，比快速的行動更有價值。',
@@ -1652,6 +1652,14 @@ function spawnConfetti(){
 }
 
 function showRecovery(){
+  // 儲存 recovery 狀態，防止 iOS Safari 記憶體回收後返回初始畫面
+  try{
+    sessionStorage.setItem('snofi_phase','recovery');
+    sessionStorage.setItem('snofi_G',JSON.stringify({
+      hp:G.hp, pType:G.pType, disc:G.disc,
+      choices:G.choices.map(({sc,chosen})=>({scId:sc.id, label:chosen.label}))
+    }));
+  } catch(e){}
   // 建立綠色輻射轉場 overlay
   const overlay=document.createElement('div');
   overlay.style.cssText='position:fixed;inset:0;z-index:9000;pointer-events:none;'+
@@ -1662,7 +1670,7 @@ function showRecovery(){
     showScreen('screen-recovery');
     const bgImg=document.getElementById('recovery-bg-img');
     bgImg.style.opacity='0';
-    bgImg.src='plot/scene6.png    ← 公司恢復健康.png';
+    bgImg.src='plot/scene6.png';
     bgImg.onload=()=>{ bgImg.style.opacity='1'; };
     bgImg.onerror=()=>{};
     overlay.remove();
@@ -1892,7 +1900,7 @@ function exportCSV(){
 // ════════════════════════════════════════
 //  RESTART
 // ════════════════════════════════════════
-function restartGame(){stopMusic();reset();showScreen('screen-intro');}
+function restartGame(){stopMusic();reset();try{sessionStorage.removeItem('snofi_phase');sessionStorage.removeItem('snofi_G');}catch(e){}showScreen('screen-intro');}
 
 // ════════════════════════════════════════
 //  PANEL DRAG (bottom-sheet behaviour)
@@ -1903,37 +1911,60 @@ function initPanelDrag(){
   if(!handle||!panel)return;
   let startY=0,startTY=0,dragging=false;
 
-  handle.addEventListener('touchstart',e=>{
+  handle.addEventListener('pointerdown',e=>{
     dragging=true;
-    startY=e.touches[0].clientY;
+    startY=e.clientY;
     const m=new DOMMatrix(getComputedStyle(panel).transform);
     startTY=isNaN(m.m42)?0:m.m42;
     panel.style.transition='none';
-  },{passive:true});
+    handle.setPointerCapture(e.pointerId);
+  });
 
-  handle.addEventListener('touchmove',e=>{
+  handle.addEventListener('pointermove',e=>{
     if(!dragging)return;
-    const dy=e.touches[0].clientY-startY;
+    const dy=e.clientY-startY;
     const newY=Math.max(0,startTY+dy);
     panel.style.transform=`translateY(${newY}px)`;
-  },{passive:true});
+  });
 
-  handle.addEventListener('touchend',()=>{
+  handle.addEventListener('pointerup',()=>{
     if(!dragging)return; dragging=false;
     const panelH=panel.offsetHeight;
     const m=new DOMMatrix(getComputedStyle(panel).transform);
     const curY=isNaN(m.m42)?0:m.m42;
     panel.style.transition='transform .35s cubic-bezier(.34,1.56,.64,1)';
     if(curY>panelH*0.3){
-      // 收起：只露出把手
       panel.style.transform=`translateY(calc(100% - 52px))`;
     } else {
-      // 回到頂端
       panel.style.transform='translateY(0)';
     }
   });
+
+  handle.addEventListener('pointercancel',()=>{ dragging=false; });
 }
-document.addEventListener('DOMContentLoaded',initPanelDrag);
+
+document.addEventListener('DOMContentLoaded',()=>{
+  initPanelDrag();
+  // 頁面重載後還原 recovery 狀態（iOS Safari 記憶體回收後返回頁面）
+  const phase=sessionStorage.getItem('snofi_phase');
+  if(phase==='recovery'){
+    try{
+      const sv=JSON.parse(sessionStorage.getItem('snofi_G'));
+      G.hp=sv.hp; G.pType=sv.pType; G.disc=sv.disc;
+      G.choices=sv.choices.map(c=>{
+        const sc=SCENES[c.scId-1];
+        const chosen=sc.options.find(o=>o.label===c.label);
+        return {sc,chosen};
+      });
+      document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+      document.getElementById('screen-recovery').classList.add('active');
+      const bgImg=document.getElementById('recovery-bg-img');
+      bgImg.src='plot/scene6.png';
+      bgImg.style.opacity='1';
+      document.getElementById('recovery-panel').style.transform='translateY(0)';
+    } catch(e){}
+  }
+});
 
 // ════════════════════════════════════════
 //  INIT
