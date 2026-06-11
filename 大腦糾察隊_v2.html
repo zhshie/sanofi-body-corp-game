@@ -122,10 +122,7 @@ body{padding-top:56px}
   box-shadow:0 -8px 32px rgba(0,0,0,.3);
   overflow-y:auto;z-index:10;
   transform:translateY(110%)}
-/* panel drag handle — real element (replaces ::before) */
-#panel-handle{padding:10px 0 4px;cursor:grab;touch-action:none;user-select:none;text-align:center}
-#panel-handle-bar{width:36px;height:4px;background:rgba(0,0,0,.20);border-radius:2px;display:inline-block}
-.scene-panel-inner{padding:0 20px 32px}
+.scene-panel-inner{padding:12px 20px 20px}
 /* — Panel slide animations — */
 @keyframes panelUp{from{transform:translateY(110%)}to{transform:translateY(0)}}
 @keyframes panelDown{from{transform:translateY(0)}to{transform:translateY(110%)}}
@@ -255,8 +252,7 @@ body{padding-top:56px}
 .compat-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}
 @media(max-width:480px){.compat-cards{grid-template-columns:1fr}}
 .compat-card{background:var(--surface);border:1.5px solid var(--border);border-radius:14px;
-  padding:14px 12px;cursor:pointer;transition:all .22s;text-align:center;position:relative;
-  isolation:isolate}
+  padding:14px 12px;cursor:pointer;transition:all .22s;text-align:center;position:relative}
 .compat-card:hover{border-color:var(--accent2);box-shadow:var(--shadow)}
 .compat-card.active{border-color:var(--accent);background:var(--accent-pale)}
 .best-badge{position:absolute;top:-10px;left:50%;transform:translateX(-50%);
@@ -264,7 +260,7 @@ body{padding-top:56px}
   white-space:nowrap;font-weight:700}
 .compat-emoji{font-size:1.8rem;margin-bottom:6px}
 .compat-char-img{width:90px;height:90px;object-fit:contain;
-  margin:0 auto 8px;display:block;mix-blend-mode:multiply;
+  margin:0 auto 8px;display:block;
   filter:drop-shadow(0 2px 8px rgba(0,0,0,.15))}
 .compat-type{font-size:.7rem;font-weight:700;letter-spacing:.08em;margin-bottom:2px}
 .compat-cell{font-size:.82rem;color:var(--text);font-weight:600}
@@ -452,10 +448,9 @@ body{padding-top:56px}
 
 /* ══ CHAR IMG (personality) ══ */
 .char-img-wrap{text-align:center;margin:0 auto 16px;
-  background:#fff;border-radius:20px;isolation:isolate;padding:8px;
-  display:inline-block}
+  border-radius:20px;padding:8px;display:inline-block}
 .char-img{width:200px;height:200px;object-fit:contain;display:block;margin:0 auto;
-  mix-blend-mode:multiply;filter:drop-shadow(0 4px 14px rgba(0,60,100,.2))}
+  filter:drop-shadow(0 4px 14px rgba(0,60,100,.2))}
 
 /* ══ SHARE CARD HTML ══ */
 .share-card-html{background:linear-gradient(145deg,#005587,#00264D);border-radius:20px;
@@ -469,7 +464,7 @@ body{padding-top:56px}
   margin-bottom:18px;font-style:italic}
 .share-char-img-wrap{margin:0 auto 16px;position:relative;z-index:1}
 .share-char-img{width:160px;height:160px;object-fit:contain;display:block;margin:0 auto;
-  mix-blend-mode:screen;filter:drop-shadow(0 4px 20px rgba(0,0,0,.35))}
+  filter:drop-shadow(0 4px 20px rgba(0,0,0,.35))}
 .share-persona-name{font-size:1.8rem;font-weight:700;color:#fff;margin-bottom:4px;
   position:relative;z-index:1}
 .share-persona-cell{font-size:.9rem;color:rgba(255,255,255,.7);margin-bottom:16px;
@@ -531,7 +526,6 @@ body{padding-top:56px}
   <div id="scene-gradient"></div>
   <div id="scene-radial"></div>
   <div id="scene-panel">
-    <div id="panel-handle"><div id="panel-handle-bar"></div></div>
     <div class="scene-panel-inner">
       <div class="scene-color-bar" id="scene-color-bar"></div>
       <div class="progress" id="pdots"></div>
@@ -640,7 +634,7 @@ body{padding-top:56px}
     </div>
     <!-- 階段 1 按鈕（初選後顯示） -->
     <div id="tr-phase1-btn" style="display:none;margin-top:18px">
-      <button class="btn-primary" style="width:100%" onclick="showHPBoost()">
+      <button class="btn-primary" style="width:100%" onclick="enterTreatmentExplore()">
         看看結果 →
       </button>
     </div>
@@ -1351,7 +1345,11 @@ function nextScene(){
         radial.classList.remove('burst');
         panel.scrollTop=0;
         panel.classList.remove('exit');
-        setTimeout(()=>panel.classList.add('enter'),600);
+        panel.style.transform='translateY(110%)';
+        setTimeout(()=>{
+          panel.style.transform='';
+          panel.classList.add('enter');
+        },600);
       },1100);
 
     } else {
@@ -1567,8 +1565,10 @@ function selectTreatment(opt,el){
 
 function enterTreatmentExplore(){
   document.getElementById('tr-phase1-btn').style.display='none';
+  document.getElementById('tr-options').style.display='none';
   const exploreEl=document.getElementById('tr-explore');
   exploreEl.style.display='block';
+  window.scrollTo({top:0});
   // 渲染探索模式選項（C 加「推薦」標示）
   document.getElementById('tr-explore-options').innerHTML=['A','B','C','D'].map(o=>
     `<div class="tr-card" onclick="showTreatmentComment('${o}',this)">
@@ -1576,7 +1576,6 @@ function enterTreatmentExplore(){
       <div class="tr-opt-text">${TR_OPT_TEXTS[o]}</div>
     </div>`
   ).join('');
-  exploreEl.scrollIntoView({behavior:'smooth',block:'start'});
   // 自動展開初選選項的說明
   setTimeout(()=>{
     const idx=['A','B','C','D'].indexOf(G.firstTrChoice);
@@ -1902,49 +1901,7 @@ function exportCSV(){
 // ════════════════════════════════════════
 function restartGame(){stopMusic();reset();try{sessionStorage.removeItem('snofi_phase');sessionStorage.removeItem('snofi_G');}catch(e){}showScreen('screen-intro');}
 
-// ════════════════════════════════════════
-//  PANEL DRAG (bottom-sheet behaviour)
-// ════════════════════════════════════════
-function initPanelDrag(){
-  const handle=document.getElementById('panel-handle');
-  const panel=document.getElementById('scene-panel');
-  if(!handle||!panel)return;
-  let startY=0,startTY=0,dragging=false;
-
-  handle.addEventListener('pointerdown',e=>{
-    dragging=true;
-    startY=e.clientY;
-    const m=new DOMMatrix(getComputedStyle(panel).transform);
-    startTY=isNaN(m.m42)?0:m.m42;
-    panel.style.transition='none';
-    handle.setPointerCapture(e.pointerId);
-  });
-
-  handle.addEventListener('pointermove',e=>{
-    if(!dragging)return;
-    const dy=e.clientY-startY;
-    const newY=Math.max(0,startTY+dy);
-    panel.style.transform=`translateY(${newY}px)`;
-  });
-
-  handle.addEventListener('pointerup',()=>{
-    if(!dragging)return; dragging=false;
-    const panelH=panel.offsetHeight;
-    const m=new DOMMatrix(getComputedStyle(panel).transform);
-    const curY=isNaN(m.m42)?0:m.m42;
-    panel.style.transition='transform .35s cubic-bezier(.34,1.56,.64,1)';
-    if(curY>panelH*0.3){
-      panel.style.transform=`translateY(calc(100% - 52px))`;
-    } else {
-      panel.style.transform='translateY(0)';
-    }
-  });
-
-  handle.addEventListener('pointercancel',()=>{ dragging=false; });
-}
-
 document.addEventListener('DOMContentLoaded',()=>{
-  initPanelDrag();
   // 頁面重載後還原 recovery 狀態（iOS Safari 記憶體回收後返回頁面）
   const phase=sessionStorage.getItem('snofi_phase');
   if(phase==='recovery'){
