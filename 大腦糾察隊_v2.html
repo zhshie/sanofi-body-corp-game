@@ -31,7 +31,7 @@ body{font-family:'Noto Sans TC',system-ui,sans-serif;background:var(--bg);color:
 /* Hide topbar on fullscreen intro */
 body:has(#screen-intro.active) #sanofi-topbar{display:none}
 #sanofi-topbar .tb-title{color:#005587;font-size:.68rem;letter-spacing:.08em;
-  text-align:right;line-height:1.4;font-weight:600}
+  text-align:right;line-height:1.4;font-weight:600;padding-right:44px}
 body{padding-top:56px}
 
 /* ══ BACK / ROW BUTTONS ══ */
@@ -43,10 +43,10 @@ body{padding-top:56px}
 .btn-main{flex:1}
 
 /* ══ MUTE BTN ══ */
-#mute-btn{position:fixed;top:12px;right:14px;z-index:999;width:32px;height:32px;border-radius:50%;
-  background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.35);
-  cursor:pointer;font-size:.85rem;box-shadow:none;transition:opacity .2s;line-height:1}
-#mute-btn:hover{background:rgba(255,255,255,.3)}
+#mute-btn{position:fixed;top:16px;right:14px;z-index:999;width:32px;height:32px;border-radius:50%;
+  background:rgba(0,85,135,.08);color:var(--accent);border:1px solid var(--accent);
+  cursor:pointer;font-size:.85rem;box-shadow:none;transition:background .2s;line-height:1}
+#mute-btn:hover{background:rgba(0,85,135,.16)}
 
 /* ══ SCREENS ══ */
 .screen{display:none;width:100%;max-width:680px;margin:0 auto;padding:20px;animation:fadeIn .45s ease}
@@ -56,12 +56,14 @@ body{padding-top:56px}
 @keyframes fadeIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
 
 /* ══ INTRO (fullscreen cover) ══ */
-#screen-intro{position:fixed;top:0;left:0;width:100%;height:100%;padding:0;overflow:hidden;
-  background:#000;z-index:950}
-#screen-intro.active{display:block}
-.cover-full{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;object-position:center;z-index:0}
-.btn-cover-start{position:absolute;bottom:15%;left:50%;transform:translateX(-50%);
-  background:transparent;border:none;color:transparent;width:52%;height:64px;
+#screen-intro{position:fixed;inset:0;padding:0;overflow:hidden;
+  background:#0a1a2a;z-index:950;display:none;align-items:center;justify-content:center}
+#screen-intro.active{display:flex}
+.cover-stage{position:relative;aspect-ratio:941/1672;
+  height:min(100vh, calc(100vw * 1672 / 941));width:auto;max-width:100%;margin:auto}
+.cover-full{width:100%;height:100%;object-fit:cover;display:block}
+.btn-cover-start{position:absolute;bottom:9%;left:50%;transform:translateX(-50%);
+  background:transparent;border:none;color:transparent;width:48%;height:7%;
   cursor:pointer;z-index:10;border-radius:30px}
 /* ══ INTRO DIALOGUE (new screen) ══ */
 #screen-intro-dialogue{min-height:100vh;display:none;flex-direction:column;align-items:center;
@@ -264,10 +266,32 @@ body{padding-top:56px}
   filter:drop-shadow(0 2px 8px rgba(0,0,0,.15))}
 .compat-type{font-size:.7rem;font-weight:700;letter-spacing:.08em;margin-bottom:2px}
 .compat-cell{font-size:.82rem;color:var(--text);font-weight:600}
-.compat-reason{background:var(--surface2);border:1px solid var(--border);border-radius:12px;
-  padding:16px 18px;font-size:.88rem;line-height:1.8;color:var(--text-dim);
-  display:none;margin-bottom:16px}
-.compat-reason.show{display:block}
+.compat-reason{display:none}
+
+/* ══ COMPAT MODAL ══ */
+#compat-modal-overlay{position:fixed;inset:0;background:rgba(0,20,40,.72);z-index:1100;
+  display:none;align-items:center;justify-content:center;padding:20px}
+#compat-modal-overlay.show{display:flex}
+#compat-modal{background:#fff;border-radius:20px;max-width:460px;width:100%;
+  max-height:88vh;overflow-y:auto;box-shadow:0 16px 48px rgba(0,60,100,.35);
+  position:relative;animation:fadeIn .28s ease}
+.cm-header{background:linear-gradient(145deg,#005587,#00264D);
+  border-radius:20px 20px 0 0;padding:28px 20px 22px;text-align:center;color:#fff}
+.cm-char{width:110px;height:110px;object-fit:contain;display:block;
+  margin:0 auto 12px;filter:drop-shadow(0 4px 16px rgba(0,0,0,.3))}
+.cm-type-tag{font-size:.66rem;letter-spacing:.18em;opacity:.75;margin-bottom:4px;font-weight:700}
+.cm-cell-name{font-size:1.35rem;font-weight:700;margin-bottom:3px}
+.cm-disc-label{font-size:.76rem;opacity:.65}
+.cm-body{padding:20px}
+.cm-section-label{font-size:.64rem;color:var(--accent);letter-spacing:.18em;
+  font-weight:700;margin-bottom:7px}
+.cm-bio-text{font-size:.86rem;line-height:1.85;color:var(--text-dim);margin-bottom:18px}
+.cm-reason-box{background:var(--accent-pale);border:1px solid var(--border);
+  border-radius:10px;padding:13px 15px;font-size:.88rem;line-height:1.8;color:var(--text)}
+.cm-close{position:absolute;top:12px;right:12px;background:rgba(255,255,255,.22);
+  border:none;color:#fff;width:30px;height:30px;border-radius:50%;cursor:pointer;
+  font-size:1rem;line-height:30px;text-align:center}
+.cm-close:hover{background:rgba(255,255,255,.38)}
 
 /* ══ EDU ══ */
 .edu-header{text-align:center;padding:32px 0 20px}
@@ -500,9 +524,11 @@ body{padding-top:56px}
 
 <!-- ══ INTRO (fullscreen cover) ══ -->
 <div id="screen-intro" class="screen active">
-  <img src="plot/cover.png" class="cover-full" alt="封面"
-    onerror="this.style.background:'#1a2a34'">
-  <button class="btn-cover-start" onclick="showScreen('screen-intro-dialogue')" aria-label="開始任務"></button>
+  <div class="cover-stage">
+    <img src="plot/cover.png" class="cover-full" alt="封面"
+      onerror="this.style.background='#1a2a34'">
+    <button class="btn-cover-start" onclick="showScreen('screen-intro-dialogue')" aria-label="開始任務"></button>
+  </div>
 </div>
 
 <!-- ══ INTRO DIALOGUE ══ -->
@@ -594,8 +620,8 @@ body{padding-top:56px}
 </div>
 
 <!-- ══ EDU ══ -->
-<div id="screen-edu" class="screen" style="padding:0">
-  <img src="plot/edu.png" style="width:100%;display:block" alt="第二型發炎衛教"
+<div id="screen-edu" class="screen" style="padding:24px 0 0">
+  <img src="plot/edu.png" style="width:100%;display:block;border-radius:12px" alt="第二型發炎衛教"
     onerror="this.style.display='none'">
   <div style="padding:16px 20px 40px">
     <div class="btn-row">
@@ -809,6 +835,25 @@ body{padding-top:56px}
 </div>
 
 </div><!-- #app -->
+
+<!-- ══ COMPAT MODAL ══ -->
+<div id="compat-modal-overlay" onclick="if(event.target===this)closeCompatModal()">
+  <div id="compat-modal">
+    <button class="cm-close" onclick="closeCompatModal()">✕</button>
+    <div class="cm-header" id="cm-header">
+      <img class="cm-char" id="cm-char" src="" alt="">
+      <div class="cm-type-tag" id="cm-type-tag"></div>
+      <div class="cm-cell-name" id="cm-cell-name"></div>
+      <div class="cm-disc-label" id="cm-disc-label"></div>
+    </div>
+    <div class="cm-body">
+      <div class="cm-section-label">細胞介紹</div>
+      <div class="cm-bio-text" id="cm-bio"></div>
+      <div class="cm-section-label">速配原因</div>
+      <div class="cm-reason-box" id="cm-reason-box"></div>
+    </div>
+  </div>
+</div>
 
 <!-- treatment-modal removed; replaced by screen-hpboost -->
 
@@ -1493,9 +1538,22 @@ function showCompat(){
 function showCompatReason(type,card){
   document.querySelectorAll('.compat-card').forEach(c=>c.classList.remove('active'));
   card.classList.add('active');
-  const rEl=document.getElementById('compat-reason');
-  rEl.textContent=COMPAT[G.pType].reason[type];
-  rEl.classList.add('show');
+  const tp=PERSONAS[type],reason=COMPAT[G.pType].reason[type];
+  const colorMap={D:'#cc2244',I:'#dd8800',S:'#228855',C:'#1155bb'};
+  const col=colorMap[type]||'#005587';
+  document.getElementById('cm-header').style.background=
+    `linear-gradient(145deg,${col},#00264D)`;
+  document.getElementById('cm-char').src=tp.charImg||'';
+  document.getElementById('cm-char').alt=tp.cell;
+  document.getElementById('cm-type-tag').textContent=`DISC ${type}型`;
+  document.getElementById('cm-cell-name').textContent=tp.cell;
+  document.getElementById('cm-disc-label').textContent=tp.discLabel;
+  document.getElementById('cm-bio').textContent=tp.bio;
+  document.getElementById('cm-reason-box').textContent=reason;
+  document.getElementById('compat-modal-overlay').classList.add('show');
+}
+function closeCompatModal(){
+  document.getElementById('compat-modal-overlay').classList.remove('show');
 }
 
 // ════════════════════════════════════════
@@ -1781,13 +1839,31 @@ function roundRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x
   ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
   ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);}
 
-function downloadCard(){
-  const canvas=document.getElementById('share-canvas');
-  const a=document.createElement('a');a.download='大腦糾察隊結果.png';a.href=canvas.toDataURL('image/png');a.click();
+function _getCanvasBlob(){
+  return new Promise(resolve=>{
+    document.getElementById('share-canvas').toBlob(blob=>resolve(blob),'image/png');
+  });
 }
-function shareIG(){downloadCard();}
-function shareFB(){G.shareCount++;logShare('FB');window.open('https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(location.href),'_blank');}
-function shareLINE(){G.shareCount++;logShare('LINE');window.open('https://social-plugins.line.me/lineit/share?url='+encodeURIComponent(location.href),'_blank');}
+async function _shareOrDownload(logKey){
+  if(logKey){G.shareCount++;logShare(logKey);}
+  const blob=await _getCanvasBlob();
+  if(!blob){alert('圖片尚未產生，請稍後再試');return;}
+  const file=new File([blob],'大腦糾察隊結果.png',{type:'image/png'});
+  if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
+    try{await navigator.share({files:[file],title:'我的免疫細胞人格',text:'#大腦糾察隊 #暴走分公司'});return;}
+    catch(e){if(e.name==='AbortError')return;}
+  }
+  // 桌機或不支援 Web Share：直接下載
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.download='大腦糾察隊結果.png';a.href=url;
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url),3000);
+}
+function downloadCard(){_shareOrDownload(null);}
+function shareIG(){_shareOrDownload('IG');}
+function shareFB(){_shareOrDownload('FB');}
+function shareLINE(){_shareOrDownload('LINE');}
 function copyLink(){
   G.shareCount++;logShare('Link');
   if(navigator.clipboard){navigator.clipboard.writeText(location.href).then(()=>alert('連結已複製！'));}
@@ -1812,7 +1888,10 @@ function submitToSheets(){
   arr.push({...data,time:new Date().toISOString()});
   localStorage.setItem('sanofi_responses',JSON.stringify(arr));
   if(APPS_SCRIPT_URL&&!APPS_SCRIPT_URL.includes('YOUR_')){
-    fetch(APPS_SCRIPT_URL,{method:'POST',body:JSON.stringify(data),headers:{'Content-Type':'application/json'}}).catch(console.error);
+    // mode:'no-cors' + text/plain 避免 CORS 預檢（Apps Script 不回應 OPTIONS）
+    fetch(APPS_SCRIPT_URL,{method:'POST',mode:'no-cors',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body:JSON.stringify(data)}).catch(console.error);
   }
 }
 

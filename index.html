@@ -1,11 +1,2013 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-TW">
 <head>
-  <meta charset="UTF-8">
-  <meta http-equiv="refresh" content="0; url=大腦糾察隊_v2.html">
-  <title>人體總監：挽救公司大作戰</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>大腦糾察隊：暴走分公司｜職場人格測驗</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ══ ROOT ══ */
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#EDF5FB;--surface:#fff;--surface2:#E0EEF8;
+  --accent:#005587;--accent2:#0072B5;--accent-pale:rgba(0,85,135,0.07);
+  --text:#1a2a3a;--text-dim:#4a6070;--border:#B0CCE0;
+  --D:#cc2244;--I:#dd8800;--S:#228855;--C:#1155bb;
+  --shadow:0 2px 12px rgba(0,60,100,.10);
+  --scene-color:#005587;
+}
+body{font-family:'Noto Sans TC',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+#bg-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;opacity:.5;pointer-events:none}
+#app{position:relative;z-index:1;min-height:100vh}
+
+/* ══ SANOFI TOPBAR ══ */
+#sanofi-topbar{position:fixed;top:0;left:0;width:100%;height:56px;background:#ffffff;
+  display:flex;align-items:center;justify-content:space-between;padding:0 16px 0 20px;z-index:900;
+  box-shadow:0 2px 16px rgba(0,60,120,.18);border-bottom:3px solid #005587}
+#sanofi-topbar .tb-logo{color:var(--accent);font-style:italic;font-weight:700;font-size:1.55rem;
+  letter-spacing:.05em;opacity:.97}
+.tb-logo-img{height:32px;object-fit:contain;display:block}
+/* Hide topbar on fullscreen intro */
+body:has(#screen-intro.active) #sanofi-topbar{display:none}
+#sanofi-topbar .tb-title{color:#005587;font-size:.68rem;letter-spacing:.08em;
+  text-align:right;line-height:1.4;font-weight:600;padding-right:44px}
+body{padding-top:56px}
+
+/* ══ BACK / ROW BUTTONS ══ */
+.btn-row{display:flex;gap:10px;margin-top:18px;width:100%}
+.btn-back{flex:0 0 76px;background:rgba(255,255,255,.8);border:1.5px solid var(--border);
+  border-radius:12px;padding:14px 0;font-size:.88rem;color:var(--text-dim);cursor:pointer;
+  font-family:inherit;transition:all .2s;text-align:center}
+.btn-back:hover{border-color:var(--accent);color:var(--accent)}
+.btn-main{flex:1}
+
+/* ══ MUTE BTN ══ */
+#mute-btn{position:fixed;top:16px;right:14px;z-index:999;width:32px;height:32px;border-radius:50%;
+  background:rgba(0,85,135,.08);color:var(--accent);border:1px solid var(--accent);
+  cursor:pointer;font-size:.85rem;box-shadow:none;transition:background .2s;line-height:1}
+#mute-btn:hover{background:rgba(0,85,135,.16)}
+
+/* ══ SCREENS ══ */
+.screen{display:none;width:100%;max-width:680px;margin:0 auto;padding:20px;animation:fadeIn .45s ease}
+.screen.active{display:block}
+/* intro-dialogue uses flex centering */
+#screen-intro-dialogue.active{display:flex}
+@keyframes fadeIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+
+/* ══ INTRO (fullscreen cover) ══ */
+#screen-intro{position:fixed;inset:0;padding:0;overflow:hidden;
+  background:#0a1a2a;z-index:950;display:none;align-items:center;justify-content:center}
+#screen-intro.active{display:flex}
+.cover-stage{position:relative;aspect-ratio:941/1672;
+  height:min(100vh, calc(100vw * 1672 / 941));width:auto;max-width:100%;margin:auto}
+.cover-full{width:100%;height:100%;object-fit:cover;display:block}
+.btn-cover-start{position:absolute;bottom:9%;left:50%;transform:translateX(-50%);
+  background:transparent;border:none;color:transparent;width:48%;height:7%;
+  cursor:pointer;z-index:10;border-radius:30px}
+/* ══ INTRO DIALOGUE (new screen) ══ */
+#screen-intro-dialogue{min-height:100vh;display:none;flex-direction:column;align-items:center;
+  justify-content:center;text-align:center;padding:40px 20px}
+#screen-intro-dialogue.active{display:flex}
+.sanofi-logo{height:36px;object-fit:contain;margin-bottom:20px}
+.sanofi-logo-text{color:var(--accent);font-weight:700;font-size:1.3rem;font-style:italic;margin-bottom:20px}
+.intro-badge{font-size:.75rem;letter-spacing:.25em;color:var(--accent);margin-bottom:8px;opacity:.8}
+.intro-title{font-size:clamp(2rem,7vw,3rem);font-weight:700;line-height:1.1;margin-bottom:6px;color:var(--accent)}
+.intro-sub{font-size:.95rem;color:var(--text-dim);margin-bottom:32px}
+.intro-box{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:22px 26px;
+  margin-bottom:32px;text-align:left;max-width:520px;width:100%;box-shadow:var(--shadow)}
+.ntag{font-size:.72rem;color:var(--accent);letter-spacing:.12em;margin-bottom:8px;font-weight:700}
+.ntext{font-size:.92rem;line-height:1.85;color:var(--text-dim)}
+.ntext p{margin-bottom:9px}.ntext p:last-child{margin-bottom:0}
+.btn-primary{background:var(--accent);color:#fff;border:none;border-radius:50px;padding:14px 40px;
+  font-size:.98rem;font-family:inherit;font-weight:600;cursor:pointer;transition:all .22s;letter-spacing:.04em}
+.btn-primary:hover{background:var(--accent2);box-shadow:0 6px 20px rgba(0,85,135,.3);transform:translateY(-2px)}
+
+/* ══ SCENE ══ */
+/* — Screen (position:fixed fullscreen, no scroll) — */
+#screen-scene{
+  position:fixed;top:56px;left:0;right:0;
+  width:100%;max-width:none;height:calc(100vh - 56px);
+  overflow:hidden;background:#0a0a1a;padding:0;margin:0}
+#screen-scene.active{display:block}
+/* — Background image: contain = full image, no crop, no stretch — */
+#scene-bg-img{
+  position:absolute;top:0;left:0;
+  width:100%;height:100%;
+  object-fit:contain;object-position:center top;
+  z-index:0;opacity:0;transition:opacity 1.2s ease}
+#scene-bg-img.visible{opacity:1}
+/* — Gradient: image fades into panel — */
+#scene-gradient{
+  position:absolute;bottom:0;left:0;right:0;
+  height:55%;z-index:1;pointer-events:none;
+  background:linear-gradient(to bottom,transparent 0%,rgba(0,0,0,.55) 100%)}
+/* — Radial burst overlay (scene transition) — */
+#scene-radial{
+  position:absolute;inset:0;z-index:5;
+  pointer-events:none;opacity:0;
+  background:radial-gradient(circle,rgba(0,85,135,.85) 0%,rgba(0,15,35,.6) 60%,transparent 100%);
+  clip-path:circle(0% at 50% 35%)}
+@keyframes radialBurst{
+  0%  {clip-path:circle(0% at 50% 35%);opacity:.85}
+  50% {clip-path:circle(80% at 50% 35%);opacity:.9}
+  100%{clip-path:circle(150% at 50% 35%);opacity:0}}
+#scene-radial.burst{animation:radialBurst .65s ease-out forwards}
+/* — Bottom panel (drawer sheet) — */
+#scene-panel{
+  position:absolute;bottom:0;left:0;right:0;
+  height:100%;
+  background:rgba(255,255,255,.75);
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+  border-radius:24px 24px 0 0;
+  box-shadow:0 -8px 32px rgba(0,0,0,.3);
+  overflow-y:auto;z-index:10;
+  transform:translateY(110%)}
+.scene-panel-inner{padding:12px 20px 20px}
+/* — Panel slide animations — */
+@keyframes panelUp{from{transform:translateY(110%)}to{transform:translateY(0)}}
+@keyframes panelDown{from{transform:translateY(0)}to{transform:translateY(110%)}}
+#scene-panel.enter{animation:panelUp .5s cubic-bezier(.34,1.56,.64,1) forwards}
+#scene-panel.exit{animation:panelDown .35s ease-in forwards}
+/* — Panel inner content — */
+.scene-color-bar{height:4px;background:var(--scene-color);border-radius:2px;margin-bottom:16px;
+  transition:background .4s ease}
+.progress{display:flex;gap:7px;margin-bottom:14px}
+.pdot{width:8px;height:8px;border-radius:50%;background:var(--border);transition:all .3s}
+.pdot.done{background:var(--scene-color);opacity:.4}
+.pdot.active{background:var(--scene-color);box-shadow:0 0 8px var(--scene-color)}
+.s-badge{display:inline-block;color:#fff;border-radius:20px;padding:4px 14px;
+  font-size:.72rem;font-weight:700;letter-spacing:.1em;margin-bottom:4px;
+  background:var(--scene-color);border:none}
+.s-dept{font-size:.75rem;color:var(--text-dim);margin-bottom:6px}
+.s-title{font-size:1.35rem;font-weight:700;margin-bottom:14px;color:var(--text)}
+.situation-box{background:var(--surface2);border-left:4px solid var(--scene-color);border-radius:0 12px 12px 0;
+  padding:12px 14px 12px 42px;margin-bottom:14px;font-size:.88rem;line-height:1.75;
+  color:var(--text-dim);font-style:italic;position:relative}
+.situation-emoji{position:absolute;left:8px;top:50%;transform:translateY(-50%);
+  font-size:1.6rem;opacity:.55;pointer-events:none}
+.narrator-bubble{background:var(--surface);border:1px solid var(--border);border-radius:12px;
+  padding:14px 18px;margin-bottom:12px;box-shadow:var(--shadow)}
+.narrator-bubble .ntext{color:var(--text-dim)}
+.reveal-box{background:#e8f4fc;border:1px solid rgba(0,85,135,.2);border-radius:14px;
+  padding:18px 20px;margin-bottom:14px}
+.reveal-box .ntext{color:#003A5C}
+.connection-bar{height:1.5px;background:linear-gradient(90deg,transparent,var(--accent),transparent);
+  margin:14px 0;animation:glow 2s infinite}
+.reveal-node{text-align:center;font-size:.82rem;color:var(--accent);letter-spacing:.12em;
+  padding:6px;font-weight:700}
+@keyframes glow{0%,100%{opacity:.4}50%{opacity:1}}
+.question-text{font-size:1.05rem;font-weight:600;margin:18px 0 12px;color:var(--text)}
+
+/* options 2×2 grid — fixed 2 columns on all screen sizes */
+.options{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.opt-card{background:#fff;border:1.5px solid var(--border);border-radius:14px;
+  padding:14px 16px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;text-align:left}
+.opt-card::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%;
+  background:var(--scene-color);transform:scaleY(0);transition:transform .2s;transform-origin:bottom}
+.opt-card:hover{border-color:var(--scene-color);background:var(--accent-pale);transform:translateY(-2px);box-shadow:var(--shadow)}
+.opt-card:hover::before{transform:scaleY(1)}
+.opt-card.selected{border-color:var(--scene-color);background:var(--accent-pale)}
+.opt-card.selected::before{transform:scaleY(1)}
+.opt-label{font-size:.7rem;font-weight:700;color:var(--scene-color);letter-spacing:.12em;margin-bottom:4px}
+.opt-text{font-size:.9rem;font-weight:600;line-height:1.5;color:var(--text)}
+.opt-sub{display:none}
+.btn-next{width:100%;background:var(--surface);color:var(--text-dim);
+  border:1.5px solid var(--border);border-radius:12px;padding:14px;font-size:.92rem;
+  font-family:inherit;font-weight:500;cursor:not-allowed;transition:all .22s;opacity:.45;pointer-events:none}
+.btn-next.on{opacity:1;pointer-events:auto;cursor:pointer;color:var(--scene-color);
+  border-color:var(--scene-color);background:rgba(255,255,255,.92)}
+.btn-next.on:hover{background:var(--scene-color);color:#fff}
+.btn-row{margin-top:18px}
+
+/* scene5 deep blue overrides */
+.scene5 .s-badge{background:#00264D;color:#b0d8f0;border-color:#005587}
+.scene5 .s-title{color:#00264D}
+.scene5 .question-text{color:#00264D}
+
+/* ══ REVIEW ══ */
+.review-header{text-align:center;padding:32px 0 24px}
+.review-title{font-size:1.6rem;font-weight:700;margin-bottom:6px;color:var(--accent)}
+.review-sub{color:var(--text-dim);font-size:.88rem}
+.review-intro{background:var(--surface);border:1px solid var(--border);border-radius:14px;
+  padding:16px 20px;margin-bottom:20px;font-size:.9rem;line-height:1.8;color:var(--text-dim);box-shadow:var(--shadow)}
+.rv-item{background:var(--surface);border:1px solid var(--border);border-radius:14px;
+  padding:16px 20px;margin-bottom:12px;box-shadow:var(--shadow);
+  opacity:0;transform:translateX(-14px);transition:opacity .4s ease,transform .4s ease}
+.rv-item.visible{opacity:1;transform:translateX(0)}
+.rv-scene{font-size:.72rem;color:var(--text-dim);letter-spacing:.1em;margin-bottom:5px}
+.rv-choice{font-size:.9rem;font-weight:600;margin-bottom:5px;color:var(--text)}
+.rv-result{font-size:.83rem;color:var(--text-dim);line-height:1.6;margin-bottom:10px}
+.rv-bar-row{display:flex;align-items:center;gap:8px}
+.rv-tag{font-size:.75rem;color:var(--text-dim);flex-shrink:0;min-width:80px}
+.bar-bg{flex:1;height:7px;background:rgba(0,0,0,.08);border-radius:4px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px;width:0%;transition:width 1.1s ease}
+.bar-ff{background:#ffa040}.bar-ext{background:#ff5555}.bar-zero{background:#44cc88}
+.rv-hp-val{font-size:.82rem;font-weight:700;min-width:52px;text-align:right}
+.final-box{margin:24px 0;background:var(--surface);border:1.5px solid var(--accent);
+  border-radius:16px;padding:24px 20px;box-shadow:var(--shadow)}
+.final-label{font-size:.8rem;color:var(--text-dim);letter-spacing:.12em;text-align:center;margin-bottom:12px}
+.final-number{font-size:3rem;font-weight:700;text-align:center;margin-bottom:10px;color:var(--accent)}
+.final-bar-bg{width:100%;height:14px;background:rgba(0,0,0,.06);border-radius:7px;overflow:hidden;margin-bottom:14px}
+.final-bar-fill{height:100%;border-radius:7px;background:linear-gradient(90deg,var(--accent),var(--accent2));
+  width:0%;transition:width 1.5s ease}
+.final-chips{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.chip{font-size:.8rem;padding:4px 12px;border-radius:20px}
+.chip-ff{background:rgba(255,160,64,.15);color:#cc6600}
+.chip-ext{background:rgba(255,85,85,.15);color:#cc2200}
+.grade-box{background:var(--accent-pale);border-left:3px solid var(--accent);border-radius:0 12px 12px 0;
+  padding:16px 20px;margin:18px 0;font-size:.92rem;line-height:1.8;font-style:italic;color:var(--text-dim)}
+
+/* ══ PERSONALITY ══ */
+#screen-personality .cell-wrap{text-align:center;padding-top:32px;margin-bottom:20px}
+.cell-icon{width:90px;height:90px;border-radius:50%;margin:0 auto 14px;display:flex;
+  align-items:center;justify-content:center;font-size:2.6rem;position:relative}
+.cell-icon::after{content:'';position:absolute;inset:-5px;border-radius:50%;
+  border:2px solid currentColor;animation:pulse 2.5s infinite;opacity:.5}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:.3}50%{transform:scale(1.07);opacity:.9}}
+.cell-D{background:rgba(204,34,68,.12);color:var(--D);border:2px solid var(--D)}
+.cell-I{background:rgba(221,136,0,.12);color:var(--I);border:2px solid var(--I)}
+.cell-S{background:rgba(34,136,85,.12);color:var(--S);border:2px solid var(--S)}
+.cell-C{background:rgba(17,85,187,.12);color:var(--C);border:2px solid var(--C)}
+.p-disc-label{font-size:.73rem;color:var(--text-dim);letter-spacing:.12em;margin-bottom:5px}
+.p-name{font-size:1.85rem;font-weight:700;margin-bottom:4px}
+.p-cell-sub{font-size:.92rem;color:var(--text-dim);margin-bottom:24px}
+.p-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;
+  padding:20px;margin-bottom:14px;box-shadow:var(--shadow)}
+.p-quote{font-size:1rem;font-weight:700;font-style:italic;line-height:1.7;margin-bottom:12px;color:var(--accent)}
+.p-desc{font-size:.88rem;color:var(--text-dim);line-height:1.85;margin-bottom:10px}
+.p-belief{font-size:.86rem;font-weight:600;font-style:italic;margin-bottom:14px;color:var(--text)}
+.p-section{font-size:.72rem;color:var(--accent);letter-spacing:.12em;font-weight:700;margin-bottom:7px}
+.p-bio{font-size:.85rem;color:var(--text-dim);line-height:1.85;margin-bottom:14px}
+.sc-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sc-box{background:var(--surface2);border-radius:10px;padding:12px}
+.sc-lbl{font-size:.7rem;letter-spacing:.1em;color:var(--text-dim);margin-bottom:4px}
+.sc-val{font-size:.84rem;line-height:1.5;color:var(--text)}
+.p-score{text-align:center;color:var(--text-dim);font-size:.82rem;margin-top:8px}
+
+/* ══ COMPAT ══ */
+#screen-compat{padding-top:32px}
+.compat-header{text-align:center;margin-bottom:24px}
+.compat-title{font-size:1.05rem;color:var(--text-dim);margin-bottom:4px}
+.compat-sub{font-size:1.35rem;font-weight:700;color:var(--text)}
+.compat-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}
+@media(max-width:480px){.compat-cards{grid-template-columns:1fr}}
+.compat-card{background:var(--surface);border:1.5px solid var(--border);border-radius:14px;
+  padding:14px 12px;cursor:pointer;transition:all .22s;text-align:center;position:relative}
+.compat-card:hover{border-color:var(--accent2);box-shadow:var(--shadow)}
+.compat-card.active{border-color:var(--accent);background:var(--accent-pale)}
+.best-badge{position:absolute;top:-10px;left:50%;transform:translateX(-50%);
+  background:var(--accent);color:#fff;font-size:.65rem;padding:2px 10px;border-radius:20px;
+  white-space:nowrap;font-weight:700}
+.compat-emoji{font-size:1.8rem;margin-bottom:6px}
+.compat-char-img{width:90px;height:90px;object-fit:contain;
+  margin:0 auto 8px;display:block;
+  filter:drop-shadow(0 2px 8px rgba(0,0,0,.15))}
+.compat-type{font-size:.7rem;font-weight:700;letter-spacing:.08em;margin-bottom:2px}
+.compat-cell{font-size:.82rem;color:var(--text);font-weight:600}
+.compat-reason{display:none}
+
+/* ══ COMPAT MODAL ══ */
+#compat-modal-overlay{position:fixed;inset:0;background:rgba(0,20,40,.72);z-index:1100;
+  display:none;align-items:center;justify-content:center;padding:20px}
+#compat-modal-overlay.show{display:flex}
+#compat-modal{background:#fff;border-radius:20px;max-width:460px;width:100%;
+  max-height:88vh;overflow-y:auto;box-shadow:0 16px 48px rgba(0,60,100,.35);
+  position:relative;animation:fadeIn .28s ease}
+.cm-header{background:linear-gradient(145deg,#005587,#00264D);
+  border-radius:20px 20px 0 0;padding:28px 20px 22px;text-align:center;color:#fff}
+.cm-char{width:110px;height:110px;object-fit:contain;display:block;
+  margin:0 auto 12px;filter:drop-shadow(0 4px 16px rgba(0,0,0,.3))}
+.cm-type-tag{font-size:.66rem;letter-spacing:.18em;opacity:.75;margin-bottom:4px;font-weight:700}
+.cm-cell-name{font-size:1.35rem;font-weight:700;margin-bottom:3px}
+.cm-disc-label{font-size:.76rem;opacity:.65}
+.cm-body{padding:20px}
+.cm-section-label{font-size:.64rem;color:var(--accent);letter-spacing:.18em;
+  font-weight:700;margin-bottom:7px}
+.cm-bio-text{font-size:.86rem;line-height:1.85;color:var(--text-dim);margin-bottom:18px}
+.cm-reason-box{background:var(--accent-pale);border:1px solid var(--border);
+  border-radius:10px;padding:13px 15px;font-size:.88rem;line-height:1.8;color:var(--text)}
+.cm-close{position:absolute;top:12px;right:12px;background:rgba(255,255,255,.22);
+  border:none;color:#fff;width:30px;height:30px;border-radius:50%;cursor:pointer;
+  font-size:1rem;line-height:30px;text-align:center}
+.cm-close:hover{background:rgba(255,255,255,.38)}
+
+/* ══ EDU ══ */
+.edu-header{text-align:center;padding:32px 0 20px}
+.pathway-box{background:var(--surface);border:1px solid var(--border);border-radius:16px;
+  padding:22px 18px;margin:16px 0;box-shadow:var(--shadow)}
+.pw-label{font-size:.72rem;color:var(--accent);letter-spacing:.12em;font-weight:700;margin-bottom:16px}
+.pw-node{background:var(--accent-pale);border:1px solid var(--border);border-radius:10px;
+  padding:9px 12px;font-size:.85rem;text-align:center;margin:5px 0}
+.pw-arrow{text-align:center;color:var(--text-dim);font-size:1rem;margin:2px 0}
+.pw-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin:5px 0}
+@media(max-width:480px){.pw-3{grid-template-columns:1fr}}
+.pw-3-node{background:#ddeeff;border:1px solid rgba(0,85,135,.2);border-radius:8px;
+  padding:7px 5px;font-size:.78rem;text-align:center}
+.pw-eff{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin:5px 0}
+@media(max-width:480px){.pw-eff{grid-template-columns:1fr}}
+.pw-eff-node{background:#fce8e8;border:1px solid rgba(200,0,0,.15);border-radius:8px;
+  padding:7px 4px;font-size:.76rem;text-align:center;color:#884444}
+.disease-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}
+@media(max-width:480px){.disease-grid{grid-template-columns:1fr}}
+.disease-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:13px;box-shadow:var(--shadow)}
+.d-icon{font-size:1.3rem;margin-bottom:6px}
+.d-name{font-size:.86rem;font-weight:700;margin-bottom:4px;color:var(--text)}
+.d-desc{font-size:.78rem;color:var(--text-dim);line-height:1.6}
+.edu-hl{background:var(--accent-pale);border:1px solid rgba(0,85,135,.2);border-radius:14px;
+  padding:20px;margin:16px 0}
+.edu-hl-title{font-size:.92rem;font-weight:700;color:var(--accent);margin-bottom:8px}
+.edu-hl-text{font-size:.88rem;line-height:1.85;color:var(--text-dim)}
+.final-narr{background:var(--surface2);border-left:3px solid var(--accent);border-radius:0 12px 12px 0;
+  padding:16px 20px;margin:18px 0;font-size:.9rem;line-height:1.8;font-style:italic;color:var(--text-dim)}
+
+/* ══ TREATMENT ══ */
+#screen-treatment{padding-top:32px}
+.treatment-header{text-align:center;margin-bottom:24px}
+.no-score-badge{display:inline-block;background:#ff8c00;color:#fff;font-size:.7rem;
+  padding:3px 12px;border-radius:20px;font-weight:700;letter-spacing:.08em;margin-bottom:10px}
+.treatment-q{font-size:1.05rem;font-weight:600;color:var(--text);margin-top:10px}
+.tr-options{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
+@media(max-width:480px){.tr-options{grid-template-columns:1fr}}
+.tr-card{background:var(--surface);border:1.5px solid var(--border);border-radius:14px;
+  padding:16px;cursor:pointer;transition:all .2s;text-align:left}
+.tr-card:hover{border-color:var(--accent2);background:var(--accent-pale);transform:translateY(-2px)}
+.tr-card.highlight{border-color:var(--accent);background:var(--accent-pale)}
+.tr-card.highlight .tr-opt-label{color:var(--accent)}
+.tr-opt-label{font-size:.7rem;font-weight:700;color:var(--text-dim);letter-spacing:.1em;margin-bottom:5px}
+.tr-opt-text{font-size:.9rem;font-weight:500;color:var(--text);line-height:1.45}
+
+/* ══ TREATMENT MODAL ══ */
+/* treatment-modal replaced by screen-hpboost */
+.modal-box{background:var(--surface);border-radius:20px 20px 0 0;padding:28px 24px 40px;
+  width:100%;max-width:680px;max-height:85vh;overflow-y:auto;
+  animation:slideUp .35s ease}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-title{font-size:1.2rem;font-weight:700;color:var(--accent);margin-bottom:16px}
+.modal-section{margin-bottom:18px}
+.modal-section-title{font-size:.8rem;font-weight:700;color:var(--text-dim);letter-spacing:.1em;margin-bottom:8px}
+.modal-item{font-size:.88rem;color:var(--text-dim);line-height:1.75;margin-bottom:4px;padding-left:12px}
+.modal-item::before{content:'• ';color:var(--accent)}
+.dupixent-box{background:var(--accent-pale);border:1.5px solid var(--accent);border-radius:12px;
+  padding:16px;margin-bottom:16px}
+.dupixent-title{font-size:.92rem;font-weight:700;color:var(--accent);margin-bottom:8px}
+.dupixent-text{font-size:.85rem;color:var(--text-dim);line-height:1.75}
+.warning-text{font-size:.8rem;color:#884400;background:#fff8ee;border:1px solid #ffcc88;
+  border-radius:8px;padding:10px 14px;margin-bottom:18px}
+.modal-btns{display:flex;flex-direction:column;gap:10px}
+.btn-modal-primary{background:var(--accent);color:#fff;border:none;border-radius:50px;
+  padding:13px 24px;font-size:.92rem;font-family:inherit;font-weight:600;cursor:pointer;transition:all .2s}
+.btn-modal-primary:hover{background:var(--accent2)}
+.btn-modal-sec{background:transparent;color:var(--accent);border:1.5px solid var(--accent);
+  border-radius:50px;padding:12px 24px;font-size:.92rem;font-family:inherit;cursor:pointer;transition:all .2s}
+.btn-modal-sec:hover{background:var(--accent-pale)}
+
+/* ══ SHARE ══ */
+#screen-share{padding-top:32px;text-align:center}
+.share-title{font-size:1.5rem;font-weight:700;color:var(--accent);margin-bottom:6px}
+.share-sub{font-size:.88rem;color:var(--text-dim);margin-bottom:24px}
+.share-canvas-wrap{margin:0 auto 24px;cursor:pointer}
+#share-canvas{width:270px;height:480px;border-radius:16px;box-shadow:0 8px 32px rgba(0,85,135,.2);display:block;margin:0 auto}
+.share-hint{font-size:.78rem;color:var(--text-dim);margin-bottom:16px}
+.share-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:380px;margin:0 auto 24px}
+.btn-share{border:none;border-radius:12px;padding:12px;font-size:.85rem;font-family:inherit;
+  font-weight:600;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:6px}
+.btn-ig{background:#E1306C;color:#fff}.btn-fb{background:#1877f2;color:#fff}
+.btn-line{background:#00B900;color:#fff}.btn-copy{background:var(--surface2);color:var(--text);border:1px solid var(--border)}
+.btn-share:hover{opacity:.88;transform:translateY(-1px)}
+.btn-restart{background:transparent;border:1.5px solid var(--border);color:var(--text-dim);
+  border-radius:50px;padding:11px 28px;font-size:.86rem;font-family:inherit;cursor:pointer;transition:all .2s;margin-top:8px}
+.btn-restart:hover{border-color:var(--accent);color:var(--accent)}
+#logo-click-area{cursor:pointer;display:inline-block}
+
+/* ══ ADMIN ══ */
+#screen-admin{padding-top:28px}
+.admin-login{text-align:center;max-width:320px;margin:80px auto}
+.admin-login h2{font-size:1.3rem;font-weight:700;color:var(--accent);margin-bottom:6px}
+.admin-login p{font-size:.85rem;color:var(--text-dim);margin-bottom:20px}
+.admin-input{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:11px 14px;
+  font-size:.95rem;font-family:inherit;color:var(--text);background:var(--surface);margin-bottom:10px}
+.admin-input:focus{outline:none;border-color:var(--accent)}
+.admin-err{font-size:.8rem;color:var(--D);margin-bottom:8px}
+.admin-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.admin-title{font-size:1.4rem;font-weight:700;color:var(--accent)}
+.admin-logout{font-size:.8rem;color:var(--text-dim);cursor:pointer;border:none;background:none;font-family:inherit}
+.stat-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;
+  padding:16px;text-align:center;box-shadow:var(--shadow)}
+.stat-val{font-size:2rem;font-weight:700;color:var(--accent);margin-bottom:4px}
+.stat-lbl{font-size:.75rem;color:var(--text-dim)}
+.disc-bars{background:var(--surface);border:1px solid var(--border);border-radius:12px;
+  padding:16px;margin-bottom:16px;box-shadow:var(--shadow)}
+.disc-bar-row{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.disc-bar-row:last-child{margin-bottom:0}
+.disc-bar-label{font-size:.8rem;font-weight:700;width:20px}
+.disc-bar-bg{flex:1;height:14px;background:rgba(0,0,0,.06);border-radius:7px;overflow:hidden}
+.disc-bar-fill{height:100%;border-radius:7px;transition:width 1s ease}
+.disc-bar-pct{font-size:.78rem;color:var(--text-dim);width:36px;text-align:right}
+.scene-heatmap{background:var(--surface);border:1px solid var(--border);border-radius:12px;
+  padding:16px;margin-bottom:16px;overflow-x:auto;box-shadow:var(--shadow)}
+.hm-table{width:100%;border-collapse:collapse;font-size:.76rem}
+.hm-table th{background:var(--surface2);padding:6px 8px;text-align:center;color:var(--text-dim);font-weight:600}
+.hm-table td{padding:5px 8px;text-align:center;border-bottom:1px solid var(--border)}
+.hm-cell{border-radius:4px;padding:3px 6px;font-weight:600}
+.recent-table{background:var(--surface);border:1px solid var(--border);border-radius:12px;
+  padding:16px;margin-bottom:16px;overflow-x:auto;box-shadow:var(--shadow)}
+.r-table{width:100%;border-collapse:collapse;font-size:.78rem}
+.r-table th{background:var(--surface2);padding:7px 10px;text-align:left;color:var(--text-dim);font-weight:600}
+.r-table td{padding:7px 10px;border-bottom:1px solid var(--border)}
+.btn-csv{background:var(--surface2);border:1.5px solid var(--border);color:var(--text);
+  border-radius:10px;padding:10px 20px;font-size:.85rem;font-family:inherit;cursor:pointer;transition:all .2s;margin-bottom:40px}
+.btn-csv:hover{border-color:var(--accent);color:var(--accent)}
+
+/* ══ SECTION TITLE SHARED ══ */
+.section-title{font-size:.75rem;color:var(--accent);letter-spacing:.12em;font-weight:700;margin-bottom:8px}
+
+/* ══ TREATMENT COMMENTARY ══ */
+.tr-comment-box{background:var(--surface);border:1.5px solid var(--border);border-radius:14px;
+  padding:18px 20px;box-shadow:var(--shadow);margin-bottom:14px}
+.tr-comment-icon{font-size:1.6rem;margin-bottom:6px}
+.tr-comment-title{font-size:.8rem;color:var(--text-dim);letter-spacing:.1em;margin-bottom:4px}
+.tr-comment-verdict{font-size:1rem;font-weight:700;margin-bottom:10px}
+.tr-comment-text{font-size:.88rem;color:var(--text-dim);line-height:1.8}
+.tr-edu-box{background:var(--accent-pale);border:1px solid rgba(0,85,135,.2);border-radius:14px;padding:16px 18px}
+.tr-edu-title{font-size:.82rem;font-weight:700;color:var(--accent);margin-bottom:8px}
+.tr-edu-text{font-size:.85rem;color:var(--text-dim);line-height:1.8}
+
+/* ══ HP BOOST ══ */
+.boost-card{background:var(--surface);border:1.5px solid var(--border);border-radius:14px;
+  padding:16px 18px;margin-bottom:8px;text-align:left;box-shadow:var(--shadow)}
+.boost-label{font-size:.75rem;color:var(--text-dim);letter-spacing:.08em;margin-bottom:8px;font-weight:600}
+.boost-bar-bg{width:100%;height:16px;background:rgba(0,0,0,.07);border-radius:8px;overflow:hidden;margin-bottom:8px}
+.boost-bar-before{height:100%;border-radius:8px;background:linear-gradient(90deg,#cc8800,#ffaa00);transition:width 1.2s ease}
+.boost-bar-after{height:100%;border-radius:8px;background:linear-gradient(90deg,#228855,#44cc88);transition:width 1.8s ease .5s}
+.boost-num{font-size:1.4rem;font-weight:700;text-align:center;color:var(--accent)}
+.boost-celebrate{margin-top:20px;padding:16px;background:rgba(34,136,85,.08);border-radius:14px}
+@keyframes bounce-down{0%,100%{transform:translateY(0)}50%{transform:translateY(6px)}}
+@keyframes charReveal{
+  from{transform:scale(.3) translateY(20px);opacity:0;filter:blur(6px)}
+  to{transform:scale(1) translateY(0);opacity:1;filter:blur(0)}}
+.char-img-reveal{animation:charReveal .9s cubic-bezier(.34,1.56,.64,1) forwards}
+@keyframes fadeInUp{
+  from{opacity:0;transform:translateY(16px)}
+  to{opacity:1;transform:translateY(0)}}
+.personality-text-reveal{animation:fadeInUp .6s ease forwards;animation-delay:.6s;opacity:0}
+
+/* ══ RECOVERY SCREEN ══ */
+#screen-recovery{
+  position:fixed;top:56px;left:0;right:0;
+  width:100%;max-width:none;height:calc(100vh - 56px);
+  overflow:hidden;background:#0a1a0a;padding:0;margin:0}
+#screen-recovery.active{display:block}
+@keyframes radialBurstGreen{
+  from{clip-path:circle(0% at 50% 50%);opacity:1}
+  to{clip-path:circle(75% at 50% 50%);opacity:0}}
+@keyframes confettiFall{
+  0%  {transform:translateY(-10px) rotate(0deg);opacity:1}
+  80% {opacity:.8}
+  100%{transform:translateY(110vh) rotate(720deg);opacity:0}}
+.confetti-piece{position:fixed;z-index:9500;pointer-events:none;
+  animation:confettiFall ease-in forwards}
+
+/* ══ CHAR IMG (personality) ══ */
+.char-img-wrap{text-align:center;margin:0 auto 16px;
+  border-radius:20px;padding:8px;display:inline-block}
+.char-img{width:200px;height:200px;object-fit:contain;display:block;margin:0 auto;
+  filter:drop-shadow(0 4px 14px rgba(0,60,100,.2))}
+
+/* ══ SHARE CARD HTML ══ */
+.share-card-html{background:linear-gradient(145deg,#005587,#00264D);border-radius:20px;
+  padding:28px 22px;margin:0 auto 24px;max-width:380px;text-align:center;
+  box-shadow:0 8px 32px rgba(0,45,90,.4);position:relative;overflow:hidden}
+.share-card-html::before{content:'';position:absolute;top:-60px;right:-60px;
+  width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,.04)}
+.share-card-html::after{content:'';position:absolute;bottom:-40px;left:-40px;
+  width:150px;height:150px;border-radius:50%;background:rgba(255,255,255,.04)}
+.share-sanofi-label{color:rgba(255,255,255,.5);font-size:.72rem;letter-spacing:.25em;
+  margin-bottom:18px;font-style:italic}
+.share-char-img-wrap{margin:0 auto 16px;position:relative;z-index:1}
+.share-char-img{width:160px;height:160px;object-fit:contain;display:block;margin:0 auto;
+  filter:drop-shadow(0 4px 20px rgba(0,0,0,.35))}
+.share-persona-name{font-size:1.8rem;font-weight:700;color:#fff;margin-bottom:4px;
+  position:relative;z-index:1}
+.share-persona-cell{font-size:.9rem;color:rgba(255,255,255,.7);margin-bottom:16px;
+  position:relative;z-index:1}
+.share-persona-desc{font-size:.83rem;color:rgba(255,255,255,.82);line-height:1.8;
+  background:rgba(255,255,255,.08);border-radius:10px;padding:12px 14px;
+  margin-bottom:14px;text-align:left;position:relative;z-index:1}
+.share-score-row{display:flex;align-items:center;justify-content:center;gap:10px;
+  margin-bottom:14px;position:relative;z-index:1}
+.share-score-row span{font-size:.82rem;color:rgba(255,255,255,.65)}
+.share-score-val{font-size:1.5rem;font-weight:700;color:#fff}
+.share-hp-bar-bg{width:80%;margin:0 auto 14px;height:8px;background:rgba(255,255,255,.2);
+  border-radius:4px;overflow:hidden;position:relative;z-index:1}
+.share-hp-bar-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,#44cc88,#228855);
+  transition:width .8s ease}
+.share-tags{font-size:.72rem;color:rgba(255,255,255,.45);letter-spacing:.05em;
+  position:relative;z-index:1}
+</style>
 </head>
 <body>
-  <script>window.location.href = '大腦糾察隊_v2.html';</script>
+
+<div id="sanofi-topbar">
+  <span id="logo-click-area" style="cursor:pointer">
+    <img src="./plot/sanofi_logo.jpg" class="tb-logo-img" alt="sanofi"
+      onerror="this.outerHTML='<span class=\'tb-logo\'>sanofi</span>'">
+  </span>
+  <span class="tb-title">🏢 人體總公司 危機管理系統</span>
+</div>
+<button id="mute-btn" title="切換音效">🔊</button>
+<canvas id="bg-canvas"></canvas>
+
+<div id="app">
+
+<!-- ══ INTRO (fullscreen cover) ══ -->
+<div id="screen-intro" class="screen active">
+  <div class="cover-stage">
+    <img src="plot/cover.png" class="cover-full" alt="封面"
+      onerror="this.style.background='#1a2a34'">
+    <button class="btn-cover-start" onclick="showScreen('screen-intro-dialogue')" aria-label="開始任務"></button>
+  </div>
+</div>
+
+<!-- ══ INTRO DIALOGUE ══ -->
+<div id="screen-intro-dialogue" class="screen">
+  <div class="intro-box">
+    <div class="ntag">▶ 特助 小哨（ILC2）</div>
+    <div class="ntext">
+      <p>「歡迎來到人體。我是你的專屬特助，代號 ILC2，可以叫我小哨。」</p>
+      <p>「你是總部空降的『危機處理總監』對吧？」</p>
+      <p>「我的老天！你終於來了！」</p>
+      <p>「公司現在亂成一團，我們完全無能為力...」</p>
+      <p>「拜託了！快幫幫我們吧...」</p>
+    </div>
+  </div>
+  <button class="btn-primary" onclick="startGame()" style="width:100%">沒問題！交給我吧！</button>
+</div>
+
+<!-- ══ SCENE ══ -->
+<div id="screen-scene" class="screen">
+  <img id="scene-bg-img" src="" alt="">
+  <div id="scene-gradient"></div>
+  <div id="scene-radial"></div>
+  <div id="scene-panel">
+    <div class="scene-panel-inner">
+      <div class="scene-color-bar" id="scene-color-bar"></div>
+      <div class="progress" id="pdots"></div>
+      <div class="s-badge" id="s-badge"></div>
+      <div class="s-dept" id="s-dept"></div>
+      <h2 class="s-title" id="s-title"></h2>
+      <div class="situation-box" id="s-situation">
+        <span class="situation-emoji" id="s-emoji"></span>
+      </div>
+      <div id="s-narrator"></div>
+      <p class="question-text" id="s-question">您會怎麼下令？</p>
+      <div class="options" id="s-options"></div>
+      <div class="btn-row">
+        <button class="btn-back" onclick="goBack()">← 返回</button>
+        <button class="btn-next btn-main" id="btn-next" onclick="nextScene()">確認決策 →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ REVIEW ══ -->
+<div id="screen-review" class="screen">
+  <div class="review-header">
+    <h2 class="review-title">📋 年度績效檢討</h2>
+    <p class="review-sub">每一個決策，對公司造成了什麼代價</p>
+  </div>
+  <div class="review-intro">
+    <strong>小哨：</strong>「好了，總監。在您看最終考核之前，讓我們回頭看看，您的每一個決定，讓公司付出了什麼代價。」
+  </div>
+  <div id="rv-items"></div>
+  <div class="final-box">
+    <div class="final-label">公司最終健康度</div>
+    <div class="final-number" id="final-num">— / 100</div>
+    <div class="final-bar-bg"><div class="final-bar-fill" id="final-bar"></div></div>
+    <div class="final-chips" id="final-chips"></div>
+  </div>
+  <div class="grade-box" id="grade-box"></div>
+  <div class="btn-row">
+    <button class="btn-back" onclick="goBack()">← 返回</button>
+    <button class="btn-primary btn-main" onclick="showPersonality()">看看您的免疫人格 →</button>
+  </div>
+</div>
+
+<!-- ══ PERSONALITY ══ -->
+<div id="screen-personality" class="screen">
+  <div id="personality-content"></div>
+  <div class="btn-row" style="margin-top:24px">
+    <button class="btn-back" onclick="goBack()">← 返回</button>
+    <button class="btn-primary btn-main" onclick="showCompat()">找找您的最速配 →</button>
+  </div>
+</div>
+
+<!-- ══ COMPAT ══ -->
+<div id="screen-compat" class="screen">
+  <div class="compat-header">
+    <p class="compat-title">身為</p>
+    <h2 class="compat-sub" id="compat-my-name"></h2>
+    <p class="compat-title" style="margin-top:4px">您最缺身邊有一個……</p>
+  </div>
+  <div class="compat-cards" id="compat-cards"></div>
+  <div class="compat-reason" id="compat-reason"></div>
+  <div class="btn-row">
+    <button class="btn-back" onclick="goBack()">← 返回</button>
+    <button class="btn-primary btn-main" onclick="showEdu()">了解第二型發炎的故事 →</button>
+  </div>
+</div>
+
+<!-- ══ EDU ══ -->
+<div id="screen-edu" class="screen" style="padding:24px 0 0">
+  <img src="plot/edu.png" style="width:100%;display:block;border-radius:12px" alt="第二型發炎衛教"
+    onerror="this.style.display='none'">
+  <div style="padding:16px 20px 40px">
+    <div class="btn-row">
+      <button class="btn-back" onclick="goBack()">← 返回</button>
+      <button class="btn-primary btn-main" onclick="showTreatment()">最後一題 →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ TREATMENT ══ -->
+<div id="screen-treatment" class="screen">
+  <div style="padding-top:24px">
+    <div class="treatment-header">
+      <h2 style="font-size:1.25rem;font-weight:700;margin-top:12px;color:var(--text)">
+        如果你或身邊的人有第二型發炎疾病，第一步你會怎麼做？
+      </h2>
+    </div>
+    <!-- 階段 1：初選（選項 C 無「推薦」標示） -->
+    <div class="tr-options" id="tr-options">
+      <div class="tr-card" onclick="selectTreatment('A',this)">
+        <div class="tr-opt-label">選項 A</div>
+        <div class="tr-opt-text">⏳ 觀察等待，相信身體能自己調節</div>
+      </div>
+      <div class="tr-card" onclick="selectTreatment('B',this)">
+        <div class="tr-opt-label">選項 B</div>
+        <div class="tr-opt-text">💊 使用傳統藥物（類固醇、抗組織胺）控制症狀</div>
+      </div>
+      <div class="tr-card" onclick="selectTreatment('C',this)">
+        <div class="tr-opt-label">選項 C</div>
+        <div class="tr-opt-text">🎯 詢問醫師是否有針對發炎根源的新型療法</div>
+      </div>
+      <div class="tr-card" onclick="selectTreatment('D',this)">
+        <div class="tr-opt-label">選項 D</div>
+        <div class="tr-opt-text">🔍 主動搜尋最新資訊，帶著資料去看診</div>
+      </div>
+    </div>
+    <!-- 階段 1 按鈕（初選後顯示） -->
+    <div id="tr-phase1-btn" style="display:none;margin-top:18px">
+      <button class="btn-primary" style="width:100%" onclick="enterTreatmentExplore()">
+        看看結果 →
+      </button>
+    </div>
+    <!-- 階段 2：探索模式（初始隱藏） -->
+    <div id="tr-explore" style="display:none;margin-top:24px">
+      <h3 style="font-size:1rem;font-weight:700;color:var(--text);margin-bottom:12px">
+        各個選項的說明：
+      </h3>
+      <!-- 探索選項（動態渲染，選項 C 含「推薦」標示） -->
+      <div class="tr-options" id="tr-explore-options"></div>
+      <!-- 評論區（點選選項後顯示） -->
+      <div id="tr-commentary" style="display:none;margin-top:16px">
+        <div id="tr-comment-box" class="tr-comment-box"></div>
+        <!-- 統一衛教 -->
+        <div class="tr-edu-box">
+          <div class="tr-edu-title">🔬 關於第二型發炎，醫學怎麼說？</div>
+          <div class="tr-edu-text">
+            不論您選哪個，了解根源才是關鍵。四種疾病——異位性皮膚炎、慢性鼻竇炎合併鼻息肉、氣喘、嗜酸性食道炎——都源自同一條 IL-4/IL-13/IL-5 發炎路徑。
+            新型生物製劑（如 Dupilumab）直接阻斷這條路徑，有機會「一把鑰匙，開多扇門」，同時改善多個器官的症狀。
+          </div>
+        </div>
+      </div>
+      <!-- 繼續按鈕（有說明後顯示） -->
+      <div id="tr-explore-btn" style="display:none;margin-top:20px">
+        <div class="btn-row">
+          <button class="btn-back" onclick="goBack()">← 返回</button>
+          <button class="btn-primary btn-main" onclick="showHPBoost()">我想了解更多 →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ HP BOOST ══ -->
+<div id="screen-hpboost" class="screen">
+  <div style="padding-top:32px;text-align:center">
+    <div style="font-size:2rem;margin-bottom:8px">💉</div>
+    <h2 style="font-size:1.4rem;font-weight:700;color:var(--accent);margin-bottom:6px">
+      使用靶向治療後…
+    </h2>
+    <p style="color:var(--text-dim);font-size:.9rem;margin-bottom:28px">
+      針對 IL-4/IL-13 路徑的生物製劑發揮作用中
+    </p>
+    <!-- 血量對比 -->
+    <div class="boost-card">
+      <div class="boost-label">治療前</div>
+      <div class="boost-bar-bg">
+        <div class="boost-bar-before" id="boost-bar-before"></div>
+      </div>
+      <div class="boost-num" id="boost-num-before">— / 100</div>
+    </div>
+    <div style="font-size:1.8rem;margin:10px 0;animation:bounce-down 1s infinite">⬇</div>
+    <div class="boost-card" style="border-color:var(--S);background:rgba(34,136,85,.06)">
+      <div class="boost-label" style="color:var(--S)">治療後（預估改善）</div>
+      <div class="boost-bar-bg">
+        <div class="boost-bar-after" id="boost-bar-after" style="width:0%"></div>
+      </div>
+      <div class="boost-num" id="boost-num-after" style="color:var(--S)">— / 100</div>
+    </div>
+    <p style="font-size:.82rem;color:var(--text-dim);margin-top:12px;line-height:1.7">
+      ＊ 臨床研究顯示，靶向 IL-4Rα 治療可使氣喘嚴重惡化減少 47–70%、<br>
+      異位性皮膚炎搔癢改善 70–80%、嗜酸性食道炎達組織學緩解約 60%
+    </p>
+    <!-- 慶祝動畫 -->
+    <div class="boost-celebrate" id="boost-celebrate" style="display:none">
+      <div style="font-size:2.5rem;animation:pulse 1s infinite">🎊</div>
+      <p style="font-weight:700;color:var(--S);font-size:1rem;margin-top:6px">公司恢復健康運作中！</p>
+      <p style="font-size:.82rem;color:var(--text-dim);margin-top:4px">即將前往下一個畫面…</p>
+    </div>
+    <p style="font-size:.8rem;color:var(--text-dim);margin-top:20px">
+      ⚠️ 如有相關症狀，請諮詢您的醫師，了解適合您的治療選擇。
+    </p>
+  </div>
+</div>
+
+<!-- ══ RECOVERY ══ -->
+<div id="screen-recovery" class="screen">
+  <img id="recovery-bg-img" src="" alt="公司恢復健康"
+    style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;object-position:center top;z-index:0;opacity:0;transition:opacity .5s ease">
+  <div id="recovery-gradient"
+    style="position:absolute;bottom:0;left:0;right:0;height:55%;z-index:1;pointer-events:none;background:linear-gradient(to bottom,transparent,rgba(0,20,0,.6))"></div>
+  <div id="recovery-panel"
+    style="position:absolute;bottom:0;left:0;right:0;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:24px 24px 0 0;padding:28px 24px 40px;z-index:10;box-shadow:0 -8px 32px rgba(0,0,0,.3);transform:translateY(100%);transition:transform .5s cubic-bezier(.34,1.56,.64,1)">
+    <h2 style="font-size:1.5rem;font-weight:700;color:var(--S);text-align:center;margin-bottom:8px">🎊 公司恢復健康！</h2>
+    <p style="font-size:.9rem;color:var(--text-dim);text-align:center;line-height:1.7;margin-bottom:24px">感謝您的危機管理！人體總公司已重新正常運作。</p>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <a href="https://www.youtube.com/watch?v=plLExQ1oRxQ" target="_blank" rel="noopener noreferrer"
+        class="btn-primary" style="display:block;text-decoration:none;text-align:center;box-sizing:border-box">
+        🎬 了解更多 →
+      </a>
+      <button class="btn-primary" style="width:100%;background:var(--surface);color:var(--accent);border:1.5px solid var(--accent)"
+        onclick="showShare()">
+        📊 察看結果 →
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SHARE ══ -->
+<div id="screen-share" class="screen">
+  <div class="share-title">📤 分享你的結果</div>
+  <p class="share-sub">你在人體總公司的人格已揭曉！</p>
+
+  <!-- HTML 視覺卡片（在頁面上展示） -->
+  <div class="share-card-html" id="share-html-card">
+    <div class="share-sanofi-label">sanofi × 人體總公司</div>
+    <div class="share-char-img-wrap">
+      <img class="share-char-img" id="share-char-img" src="" alt="角色圖" onerror="this.style.display='none'">
+    </div>
+    <h2 class="share-persona-name" id="share-persona-name"></h2>
+    <p class="share-persona-cell" id="share-persona-cell"></p>
+    <p class="share-persona-desc" id="share-persona-desc"></p>
+    <div class="share-score-row">
+      <span>公司最終健康度</span>
+      <span class="share-score-val" id="share-score-text"></span>
+    </div>
+    <div class="share-hp-bar-bg">
+      <div class="share-hp-bar-fill" id="share-hp-bar"></div>
+    </div>
+    <div class="share-tags">#大腦糾察隊 &nbsp;#暴走分公司 &nbsp;#第二型發炎</div>
+  </div>
+
+  <!-- Canvas（隱藏，用於下載） -->
+  <p class="share-hint">👆 長按圖片可儲存分享卡</p>
+  <div class="share-btns">
+    <button class="btn-share btn-ig" onclick="shareIG()">📸 儲存圖片</button>
+    <button class="btn-share btn-fb" onclick="shareFB()">📘 分享 FB</button>
+    <button class="btn-share btn-line" onclick="shareLINE()">💬 分享 LINE</button>
+    <button class="btn-share btn-copy" onclick="copyLink()">🔗 複製連結</button>
+  </div>
+  <div style="display:none"><canvas id="share-canvas"></canvas></div>
+  <br>
+  <button class="btn-restart" onclick="restartGame()">↺ 再玩一次</button>
+  <div style="height:40px"></div>
+</div>
+
+<!-- ══ ADMIN ══ -->
+<div id="screen-admin" class="screen">
+  <div id="admin-login-view">
+    <div class="admin-login">
+      <h2>後台管理</h2>
+      <p>請輸入管理員密碼</p>
+      <input type="password" class="admin-input" id="admin-pw-input" placeholder="密碼" onkeydown="if(event.key==='Enter')checkAdminPw()">
+      <div class="admin-err" id="admin-err" style="display:none">密碼錯誤</div>
+      <button class="btn-primary" style="width:100%" onclick="checkAdminPw()">進入</button>
+    </div>
+  </div>
+  <div id="admin-dashboard-view" style="display:none">
+    <div class="admin-header">
+      <h2 class="admin-title">📊 後台儀表板</h2>
+      <button class="admin-logout" onclick="adminLogout()">← 返回遊戲</button>
+    </div>
+    <div class="stat-cards" id="stat-cards"></div>
+    <div class="disc-bars">
+      <div class="section-title">DISC 型分佈</div>
+      <div id="disc-chart"></div>
+    </div>
+    <div class="scene-heatmap">
+      <div class="section-title">場景選項熱圖</div>
+      <div id="heatmap-wrap"></div>
+    </div>
+    <div class="scene-heatmap">
+      <div class="section-title">治療選擇分佈</div>
+      <div id="treat-chart"></div>
+    </div>
+    <div class="recent-table">
+      <div class="section-title">最新記錄</div>
+      <div id="recent-wrap"></div>
+    </div>
+    <button class="btn-csv" onclick="exportCSV()">📥 匯出 CSV</button>
+  </div>
+</div>
+
+</div><!-- #app -->
+
+<!-- ══ COMPAT MODAL ══ -->
+<div id="compat-modal-overlay" onclick="if(event.target===this)closeCompatModal()">
+  <div id="compat-modal">
+    <button class="cm-close" onclick="closeCompatModal()">✕</button>
+    <div class="cm-header" id="cm-header">
+      <img class="cm-char" id="cm-char" src="" alt="">
+      <div class="cm-type-tag" id="cm-type-tag"></div>
+      <div class="cm-cell-name" id="cm-cell-name"></div>
+      <div class="cm-disc-label" id="cm-disc-label"></div>
+    </div>
+    <div class="cm-body">
+      <div class="cm-section-label">細胞介紹</div>
+      <div class="cm-bio-text" id="cm-bio"></div>
+      <div class="cm-section-label">速配原因</div>
+      <div class="cm-reason-box" id="cm-reason-box"></div>
+    </div>
+  </div>
+</div>
+
+<!-- treatment-modal removed; replaced by screen-hpboost -->
+
+<script>
+/*
+══════════════════════════════════════════════════
+ GOOGLE APPS SCRIPT（貼到 script.google.com 部署）
+══════════════════════════════════════════════════
+const SHEET_ID = '1JSMmSQlf6YRRIVPymAnW-UHOyxcEuy74hQS2k4h6G-g';
+const ADMIN_PW = 'Sanofi';
+function doPost(e){
+  try{
+    const ss=SpreadsheetApp.openById(SHEET_ID);
+    let sh=ss.getSheetByName('responses');
+    if(!sh){sh=ss.insertSheet('responses');
+      sh.appendRow(['時間戳','DISC型','職場暱稱','場景1','場景2','場景3','場景4','場景5','最終HP','治療選擇','分享平台','裝置']);
+      sh.setFrozenRows(1);sh.getRange(1,1,1,12).setBackground('#005587').setFontColor('#fff').setFontWeight('bold');}
+    const d=JSON.parse(e.postData.contents);
+    sh.appendRow([new Date(),d.disc,d.nickname,d.s1,d.s2,d.s3,d.s4,d.s5,d.hp,d.treatment,d.share,d.device]);
+    return ContentService.createTextOutput(JSON.stringify({status:'ok'})).setMimeType(ContentService.MimeType.JSON);
+  }catch(err){return ContentService.createTextOutput(JSON.stringify({status:'error',msg:err.toString()})).setMimeType(ContentService.MimeType.JSON);}
+}
+function doGet(e){
+  if(e.parameter.pw!==ADMIN_PW)return ContentService.createTextOutput(JSON.stringify({error:'unauthorized'})).setMimeType(ContentService.MimeType.JSON);
+  const ss=SpreadsheetApp.openById(SHEET_ID);const sh=ss.getSheetByName('responses');
+  if(!sh||sh.getLastRow()<=1)return ContentService.createTextOutput(JSON.stringify({rows:[]})).setMimeType(ContentService.MimeType.JSON);
+  const allData=sh.getDataRange().getValues();const rows=allData.slice(1);
+  const total=rows.length;const discCount={D:0,I:0,S:0,C:0};let hpSum=0,shareCount=0;
+  rows.forEach(r=>{if(discCount[r[1]]!==undefined)discCount[r[1]]++;hpSum+=parseInt(r[8])||0;if(r[10])shareCount++;});
+  const stats={total,avgHP:total>0?Math.round(hpSum/total):0,shareCount,discCount};
+  const recentRows=rows.slice(-50).reverse().map(r=>({time:r[0],disc:r[1],nickname:r[2],hp:r[8],treatment:r[9],share:r[10],device:r[11]}));
+  return ContentService.createTextOutput(JSON.stringify({stats,recentRows})).setMimeType(ContentService.MimeType.JSON);
+}
+══════════════════════════════════════════════════
+*/
+
+// ════════════════════════════════════════
+//  CONSTANTS
+// ════════════════════════════════════════
+const APPS_SCRIPT_URL = 'YOUR_APPS_SCRIPT_URL_HERE'; // 部署後替換
+const SHEET_ID = '1JSMmSQlf6YRRIVPymAnW-UHOyxcEuy74hQS2k4h6G-g';
+
+// ════════════════════════════════════════
+//  SCENE DATA
+// ════════════════════════════════════════
+const SCENES = [
+  {
+    id:1, badge:'場景一', dept:'公關部大門｜皮膚屏障', title:'街頭混混在砸大門',
+    emoji:'🚪', sceneColor:'#B03A6B',
+    bgImg:'plot/scene1.png',
+    situation:'深夜。公關部大門（皮膚）。不明人士（塵蟎、貓毛）在破壞外牆。',
+    narrator:['總監！公關部通報...','發現不明人士在破壞外牆。','該怎麼辦？'],
+    options:[
+      {label:'A',disc:'S',hp:-5,type:'ext',
+       text:'直接派人把牆壁修補好，不想把事情鬧大。',
+       result:'牆壁裂縫被及時修補，但無法保證不明人士不再出現。',tag:'🔴 隱患留存'},
+      {label:'B',disc:'C',hp:-3,type:'zero',
+       text:'先評估受損程度，擬定修復計畫，一切都安排好再進行修復工程與賠償事宜。',
+       result:'有效運用資源修復外牆，但仍因計畫而花費較多時間。',tag:'✅ 精準處置'},
+      {label:'C',disc:'D',hp:-12,type:'ff',
+       text:'立刻帶領警衛衝出去把不明人士趕走。',
+       result:'成功趕走不明人士，公關部門口卻殘破不堪。（嚴重紅腫熱痛—異位性皮膚炎）',tag:'🟡 友軍誤傷'},
+      {label:'D',disc:'I',hp:-8,type:'ff',
+       text:'立刻報警並廣播讓所有人知道。',
+       result:'在警察來之前，不明人士就被大張旗鼓嚇跑了，但浪費了過多人力。（過度動員）',tag:'🟡 過度動員'}
+    ]
+  },
+  {
+    id:2, badge:'場景二', dept:'收發室｜鼻腔黏膜', title:'廣告傳單淹沒收發室',
+    emoji:'📬', sceneColor:'#D07000',
+    bgImg:'plot/scene2.png',
+    situation:'週一早晨，大廳收發室。成千上萬張的無用廣告傳單（花粉）如雪片般湧入。',
+    narrator:['總監！總監！收發室求助...快被廣告傳單淹沒啦！','該怎麼辦...？'],
+    options:[
+      {label:'A',disc:'S',hp:-5,type:'ext',
+       text:'調閱歷史紀錄發現之前有類似事件，直接關閉收發室，等風波過後再清理。',
+       result:'雖然暫時遠離了風波，但收發室充滿傳單（花粉）與慌亂中打翻的東西（鼻涕），最後還是得清理。',tag:'🔴 記憶過敏觸發'},
+      {label:'B',disc:'I',hp:-8,type:'ff',
+       text:'廣播讓所有人知道，請有空的人一起幫忙處理過多的傳單。',
+       result:'雖然大家一起快速將傳單處理完，但大規模動員使公司營運亂成一團。（持續過度動員）',tag:'🟡 持續過度動員'},
+      {label:'C',disc:'C',hp:-3,type:'zero',
+       text:'先擬定計畫，調度過濾系統，攔截無用傳單，讓一般郵件正常運作。',
+       result:'公司營運恢復，但仍因花時間規劃而稍受影響。（輕微防線反應）',tag:'✅ 精準防線'},
+      {label:'D',disc:'D',hp:-12,type:'ff',
+       text:'派人直接出發尋找無用傳單的源頭，將源頭處理好。',
+       result:'雖然成功處理掉源頭，但收發室的傳單（花粉）與打翻的東西（鼻涕）已亂成一團。（慢性鼻竇炎）',tag:'🟡 友軍誤傷'}
+    ]
+  },
+  {
+    id:3, badge:'場景三', dept:'空調機房｜支氣管', title:'機房主管要切斷通風管',
+    emoji:'❄️', sceneColor:'#1A7A8A',
+    bgImg:'plot/scene3.png',
+    situation:'地下室的空調機房。感測器亮起黃燈，偵測到灰塵與貓毛正透過通風管（氣管）進入。',
+    narrator:['總監！機房偵測到灰塵與貓毛正由通風管（氣管）進入！','該怎麼辦...？'],
+    options:[
+      {label:'A',disc:'I',hp:-8,type:'ff',
+       text:'廣播通知所有人，讓大家提高警覺一起防範灰塵與貓毛由任何通風口入侵。',
+       result:'整個公司陷入高度警覺狀態，雖能捕捉到入侵的灰塵與貓毛，但許多人無法好好工作，營運效率下降。（廣泛過度敏感）',tag:'🟡 廣泛過度敏感'},
+      {label:'B',disc:'S',hp:-5,type:'ext',
+       text:'將訊息壓下，避免引起大家恐慌，再想辦法處理。',
+       result:'雖然沒有引起恐慌，但時不時的自動警報聲仍會干擾到在工作中的人。（威脅未清除）',tag:'🔴 威脅未清除'},
+      {label:'C',disc:'C',hp:-3,type:'zero',
+       text:'先分析入侵的灰塵與貓毛，確認模樣與大小後，以合適的濾網將其阻擋。',
+       result:'確實阻擋了灰塵與貓毛的入侵，但仍因花時間計畫而稍受影響。（精準清除）',tag:'✅ 精準清除'},
+      {label:'D',disc:'D',hp:-12,type:'ff',
+       text:'直接派大量人力於各個通風管圍堵並清理。',
+       result:'雖然清除了入侵的灰塵與貓毛，但大量人力湧入各通風管（氣管），使場面混亂擁擠——氣管嗜酸球浸潤。',tag:'🟡 氣管嗜酸球浸潤'}
+    ]
+  },
+  {
+    id:4, badge:'場景四', dept:'員工餐廳走廊｜食道', title:'一批麵粉讓稽查員炸了',
+    emoji:'🍜', sceneColor:'#4A7A20',
+    bgImg:'plot/scene4.png',
+    situation:'中午時分，員工餐廳走廊（食道）。一批麵粉（小麥蛋白）剛送達。',
+    narrator:['總監！餐廳收到了一批貨，但資深稽查員（記憶B細胞）發現是餐廳無法使用的麵粉，想呼叫安管部隊（嗜酸性球）銷毀，正在等待您的指令。','該怎麼做？'],
+    options:[
+      {label:'A',disc:'D',hp:-12,type:'ff',
+       text:'既然無法使用，那就立刻讓安管部隊銷毀吧。',
+       result:'安管部隊湧入走廊，麵粉雖然被處理掉，但走廊擠得水洩不通。（嗜伊紅性食道炎—嗜酸球浸潤）',tag:'🟡 嗜酸球浸潤'},
+      {label:'B',disc:'I',hp:-8,type:'ff',
+       text:'廣播讓所有人知道，一起決定麵粉的下場。',
+       result:'雖然最終麵粉的去向能由大家共同決定，但許多員工因此沒辦法專心工作，效率下降。（食道過度活化）',tag:'🟡 食道過度活化'},
+      {label:'C',disc:'C',hp:-3,type:'zero',
+       text:'尋找需要的店家接手麵粉，計畫讓麵粉找到有用處的地方。',
+       result:'雖然花了一點時間規劃，仍有些許影響，但最終麵粉有找到合適的去處。（最低干預）',tag:'✅ 最低干預'},
+      {label:'D',disc:'S',hp:-5,type:'ext',
+       text:'將麵粉暫時堆在走道邊，等之後想到辦法再處理。',
+       result:'雖然暫時免去了麻煩，但麵粉堆在走道邊仍然造成了一定的影響。（記憶過敏反應）',tag:'🔴 記憶過敏反應'}
+    ]
+  },
+  {
+    id:5, badge:'場景五', dept:'總裁辦公室｜大揭露', title:'四份報告指向同一個 Bug',
+    emoji:'🏢', sceneColor:'#00264D',
+    bgImg:'plot/scene5.png',
+    situation:'總裁辦公室。桌上放著四個部門（公關部、收發室、空調機房、餐廳）的狀況報告。',
+    narrator:[
+      '總監，這裡有一份文件要給您過目。',
+      '「IL-4 和 IL-13 及 IL-5 指令濫用」——最近調查發現，公司高層下達這幾個指令的頻率太高了。',
+      '這些指令會讓員工對沒那麼嚴重的事情過度反應。',
+      '在醫學上這種情形被稱為——<strong>第二型發炎反應 (Type 2 Inflammation)</strong>。',
+      '總監，看完後您會怎麼做呢？'
+    ],
+    isReveal:true,
+    question:'身為總監，您的下一步會是什麼？',
+    options:[
+      {label:'A',disc:'I',hp:-5,type:'ff',
+       text:'把文件調查內容通知給所有人知道，讓大家在下指令前三思而後行。',
+       result:'資訊廣傳，整體意識提升，但大規模訊號傳遞帶來全身輕度發炎反應。',tag:'🟡 訊號過載'},
+      {label:'B',disc:'D',hp:-8,type:'ff',
+       text:'立刻下令公司不准再下這些指令。',
+       result:'行動迅速且立竿見影，但未充分理解機制就介入，造成部分不必要的副作用。',tag:'🟡 資訊不完整的代價'},
+      {label:'C',disc:'C',hp:0,type:'zero',
+       text:'深入了解並仔細思考這些指令對公司的利與弊，不急著立刻做最終決策。',
+       result:'完整理解了第二型發炎路徑——IL-33→ILC2→Th2→IL-4/IL-5/IL-13→各器官效應，找到最精準的介入點。',tag:'✅ 精準洞察（+0 HP）'},
+      {label:'D',disc:'S',hp:-3,type:'ext',
+       text:'擬定一套完整的機制，限制使用時機與應對措施。',
+       result:'穩健的長期策略，但建置期間的空窗讓發炎核心暫時無人管理。',tag:'🔴 執行時間差'}
+    ]
+  }
+];
+
+// ════════════════════════════════════════
+//  PERSONA DATA
+// ════════════════════════════════════════
+const PERSONAS = {
+  D:{emoji:'⚡',name:'暴走安管主管',cell:'嗜酸性球',discLabel:'DISC D型：主導型（Dominance）',colorVar:'var(--D)',
+    charImg:'plot/char_D.png',
+    quote:'「您的本能，是砸爛問題，連同牆壁一起。」',
+    desc:'行動力極強，喜歡直接對決。為了消滅過敏原，不惜讓組織受損，引發氣管增厚、皮膚損傷。',
+    belief:'您相信：行動比分析更重要。勝利比過程更重要。',
+    bioTitle:'您在人體總公司的角色：嗜酸性球 (Eosinophil)',
+    bio:'嗜酸性球是第二型免疫的前線戰士，在IL-5的指令下大量增生，攜帶強力攻擊蛋白（MBP、ECP）直搗威脅。他們是對付寄生蟲最有效的武器——但在過敏情境下，同樣的攻擊力會轉向自身的組織，造成氣道壁增厚、食道發炎、皮膚損傷。',
+    strength:'果決、行動力強、危機中讓人安心',
+    challenge:'學習在「做得快」和「做得對」之間找到平衡'},
+  I:{emoji:'📢',name:'恐慌廣播員',cell:'ILC2細胞',discLabel:'DISC I型：影響型（Influence）',colorVar:'var(--I)',
+    charImg:'plot/char_I.png',
+    quote:'「您的本能，是拿大聲公讓全公司一起焦慮。」',
+    desc:'團隊的號召者，喜歡團結所有人一起面對事情。只要偵測到異常，就會立刻釋放大量訊號（IL-4, IL-5, IL-13）動員全身，使系統過度活化，警戒解除了身體卻還在發炎。',
+    belief:'您相信：一個人的力量有限，大家一起才夠強。讓大家都參與，比精準分工更重要。',
+    bioTitle:'您在人體總公司的角色：ILC2細胞',
+    bio:'ILC2是第二型免疫反應的「第一聲警報」。它不需要抗原的精準匹配，只要偵測到危險訊號（IL-33、TSLP、IL-25），就立刻活化，迅速釋放大量IL-4、IL-5、IL-13，把整個第二型免疫系統動員起來。它的廣播有時讓系統過度活化。',
+    strength:'感染力強、能快速凝聚共識、在混亂中帶來方向感',
+    challenge:'學習在「動員大家」和「讓大家適時停下來」之間取得平衡'},
+  S:{emoji:'🛡️',name:'創傷守舊派',cell:'記憶B細胞',discLabel:'DISC S型：穩健型（Steadiness）',colorVar:'var(--S)',
+    charImg:'plot/char_S.png',
+    quote:'「您的本能，是抱著十年前的客訴單瑟瑟發抖。」',
+    desc:'經驗豐富（IgE 記憶），喜歡選擇最保守穩定的做法。IgE 記憶對付寄生蟲很有用，但在過敏反應中，易對無害的物質（如塵蟎、花粉）產生不必要的反應。',
+    belief:'您相信：穩定比速度重要。已知的風險，比未知的行動更可預期。',
+    bioTitle:'您在人體總公司的角色：記憶B細胞 (Memory B Cell)',
+    bio:'記憶B細胞在第一次接觸過敏原後會長期存活，下次再遇到同樣的抗原時，迅速大量分泌IgE抗體。IgE與肥大細胞和嗜酸球上的受體結合，是過敏反應的關鍵觸發器。但在過敏情境下，同樣的記憶讓身體對無害的物質也產生了強烈反應。',
+    strength:'可靠、對熟悉情境反應快、讓人有安全感',
+    challenge:'學習區分「過去的威脅」和「現在的實際狀況」是否真的一樣'},
+  C:{emoji:'🔬',name:'精準協調大師',cell:'Th2細胞',discLabel:'DISC C型：謹慎型（Conscientiousness）',colorVar:'var(--C)',
+    charImg:'plot/char_C.png',
+    quote:'「您的本能，是先寫完 SOP 再來處理危機。」',
+    desc:'先計劃再行動，謹慎小心的謀略者。精準調控每一次的反應規模，但當訊號失控時，會使整個公司陷入慢性發炎與過敏。',
+    belief:'您相信：做對比做快更重要。精準的行動，比快速的行動更有價值。',
+    bioTitle:'您在人體總公司的角色：Th2細胞',
+    bio:'Th2細胞是第二型免疫反應的總協調者。它整合來自ILC2、樹突細胞的訊號，分泌IL-4（促進IgE生產）、IL-5（活化嗜酸球）和IL-13（強化屏障反應），精準調控整個第二型反應的規模與方向。Th2決定了「反應要多強」——當它的訊號過度時，就是過敏和慢性發炎的源頭。',
+    strength:'精準、系統性思考、對身體造成的損耗最低',
+    challenge:'學習在「分析清楚」和「及時採取行動」之間找到節奏'}
+};
+
+// ════════════════════════════════════════
+//  COMPAT DATA
+// ════════════════════════════════════════
+const COMPAT = {
+  D:{best:'C',others:['I','S'],reason:{
+    C:'D衝鋒陷陣，C補上精準和SOP。你打得快，C讓打得準。兩者合體才是完整的免疫應對。在身體裡，嗜酸球的火力需要Th2的精準調控才不會傷到自己。',
+    I:'D和I都是行動派，你們在一起場面很熱鬧——但沒有人煞車，容易過激。身體裡，兩種細胞同時全力啟動往往是過敏最嚴重的時候。',
+    S:'D的衝勁配上S的穩健，短期內互補。但S的記憶導向和D的行動導向在長期會產生摩擦。'}},
+  I:{best:'S',others:['C','D'],reason:{
+    S:'I熱情廣播，S穩住現場。你點燃動能，S讓反應持續而不失控。在身體裡，ILC2發出警報後，記憶B細胞的長期記憶讓防禦有持續性——不過要小心記憶過敏。',
+    C:'I的熱情加上C的分析，是很好的搭配——只要I願意等C分析完再行動。身體裡，ILC2的快速動員配合Th2的精準調控，是健康免疫反應的理想模式。',
+    D:'I和D在一起火花四射，但都太衝——沒有穩健的後盾，容易燃燒殆盡。'}},
+  S:{best:'I',others:['C','D'],reason:{
+    I:'S守成，I開拓。你穩健保守，I帶來突破和活力。一個走得穩，一個走得快，剛好互補。在身體裡，記憶B細胞的長期保護加上ILC2的快速動員，才是完整防線。',
+    C:'S和C都是謹慎派，你們很合拍——但兩個人都不愛主動出擊，遇到真正需要行動的時候可能都在分析。',
+    D:'S需要D偶爾來打破保守的慣性，讓系統不會因為過度依賴舊記憶而失靈。'}},
+  C:{best:'D',others:['I','S'],reason:{
+    D:'C分析完了卻遲遲不動，D給執行力。你想清楚，D幫你打出去。在身體裡，Th2精準調控的指令，需要嗜酸球這樣的執行者才能真正發揮作用。',
+    I:'C的精準加上I的熱情，C提供策略，I帶來動員。只要C能容忍I的衝動，這是很有效的組合。',
+    S:'C和S都是謹慎型，彼此理解——但兩者一起可能讓決策過於緩慢，需要注入一點行動力。'}}
+};
+
+// ════════════════════════════════════════
+//  CANVAS PARTICLES
+// ════════════════════════════════════════
+const bgCanvas = document.getElementById('bg-canvas');
+const bgCtx = bgCanvas.getContext('2d');
+let pts = [];
+
+function resizeCanvas(){bgCanvas.width=window.innerWidth;bgCanvas.height=window.innerHeight}
+function initPts(){
+  pts=[];
+  const n=Math.min(60,Math.floor(bgCanvas.width*bgCanvas.height/20000));
+  for(let i=0;i<n;i++) pts.push({x:Math.random()*bgCanvas.width,y:Math.random()*bgCanvas.height,r:Math.random()*1.6+.4,vx:(Math.random()-.5)*.25,vy:(Math.random()-.5)*.25,a:Math.random()*.3+.08});
+}
+function drawBg(){
+  bgCtx.clearRect(0,0,bgCanvas.width,bgCanvas.height);
+  pts.forEach(p=>{
+    p.x=(p.x+p.vx+bgCanvas.width)%bgCanvas.width;
+    p.y=(p.y+p.vy+bgCanvas.height)%bgCanvas.height;
+    bgCtx.beginPath();bgCtx.arc(p.x,p.y,p.r,0,Math.PI*2);
+    bgCtx.fillStyle=`rgba(80,140,185,${p.a})`;bgCtx.fill();
+  });
+  for(let i=0;i<pts.length;i++) for(let j=i+1;j<pts.length;j++){
+    const dx=pts[j].x-pts[i].x,dy=pts[j].y-pts[i].y,d=Math.hypot(dx,dy);
+    if(d<100){bgCtx.beginPath();bgCtx.moveTo(pts[i].x,pts[i].y);bgCtx.lineTo(pts[j].x,pts[j].y);
+      bgCtx.strokeStyle=`rgba(80,140,185,${.06*(1-d/100)})`;bgCtx.lineWidth=.5;bgCtx.stroke();}
+  }
+  requestAnimationFrame(drawBg);
+}
+window.addEventListener('resize',()=>{resizeCanvas();initPts()});
+resizeCanvas();initPts();drawBg();
+
+// ════════════════════════════════════════
+//  AUDIO
+// ════════════════════════════════════════
+let audioCtx=null,gainMaster=null,musicIntervals=[],audioMuted=false,currentMode=null;
+
+function ensureAudio(){
+  if(!audioCtx){
+    audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+    gainMaster=audioCtx.createGain();gainMaster.gain.value=.7;
+    gainMaster.connect(audioCtx.destination);
+  }
+  if(audioCtx.state==='suspended') audioCtx.resume();
+}
+function stopMusic(){musicIntervals.forEach(clearInterval);musicIntervals=[];}
+function playNote(freq,start,dur,g=.08,type='sine'){
+  if(!audioCtx||audioMuted)return;
+  const o=audioCtx.createOscillator(),ga=audioCtx.createGain();
+  o.type=type;o.frequency.setValueAtTime(freq,start);
+  ga.gain.setValueAtTime(g,start);ga.gain.exponentialRampToValueAtTime(.001,start+dur);
+  o.connect(ga);ga.connect(gainMaster);o.start(start);o.stop(start+dur+.01);
+}
+function playKick(t){
+  if(!audioCtx||audioMuted)return;
+  const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+  o.frequency.setValueAtTime(150,t);o.frequency.exponentialRampToValueAtTime(40,t+.15);
+  g.gain.setValueAtTime(.7,t);g.gain.exponentialRampToValueAtTime(.001,t+.22);
+  o.connect(g);g.connect(gainMaster);o.start(t);o.stop(t+.25);
+}
+function playHihat(t){
+  if(!audioCtx||audioMuted)return;
+  const buf=audioCtx.createBuffer(1,audioCtx.sampleRate*.05,audioCtx.sampleRate);
+  const d=buf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;
+  const src=audioCtx.createBufferSource(),g=audioCtx.createGain(),f=audioCtx.createBiquadFilter();
+  f.type='highpass';f.frequency.value=8000;g.gain.setValueAtTime(.12,t);g.gain.exponentialRampToValueAtTime(.001,t+.05);
+  src.buffer=buf;src.connect(f);f.connect(g);g.connect(gainMaster);src.start(t);
+}
+function playTense(){
+  stopMusic();if(audioMuted)return;currentMode='tense';
+  if(gainMaster)gainMaster.gain.setTargetAtTime(.7,audioCtx.currentTime,.3);
+  const beat=60/120;let step=0;
+  const tick=()=>{if(!audioCtx||audioMuted)return;const t=audioCtx.currentTime;
+    if(step%4===0||step%4===2)playKick(t);playHihat(t);
+    if(step%8===0)[220,277,330].forEach(f=>playNote(f,t,beat*4,.035));step++;};
+  tick();musicIntervals.push(setInterval(tick,beat*1000));
+}
+function playIntense(){
+  // 場景5：真正緊張版 BPM 155，不和諧三全音+快速 hihat
+  stopMusic();if(audioMuted)return;currentMode='intense';
+  if(gainMaster)gainMaster.gain.setTargetAtTime(.85,audioCtx.currentTime,.2);
+  const beat=60/155;let step=0;
+  const tick=()=>{if(!audioCtx||audioMuted)return;const t=audioCtx.currentTime;
+    if(step%4===0||step%4===2)playKick(t);
+    playHihat(t);
+    if(step%2===0)playHihat(t+beat*.5);        // 反拍 hihat
+    if(step%8===0){
+      [220,311,370].forEach(f=>playNote(f,t,beat*4,.045)); // 小三和弦（較陰暗）
+      playNote(440,t+beat*2,beat*2,.025,'triangle');        // 漸入高音緊張感
+    }
+    if(step%16===0)playNote(185,t,.15,.2,'square');         // 低沉警報敲擊
+    step++;};
+  tick();musicIntervals.push(setInterval(tick,beat*1000));
+}
+function playRelax(){
+  // 結果頁：輕快大調，BPM 115，帶跳躍感
+  stopMusic();if(audioMuted)return;currentMode='relax';
+  if(gainMaster)gainMaster.gain.setTargetAtTime(.6,audioCtx.currentTime,.5);
+  const beat=60/115;let step=0;
+  // 大調和弦：C-E-G / G-B-D / F-A-C / C-E-G
+  const chords=[[262,330,392],[196,247,294],[349,440,523],[262,330,392]];
+  const tick=()=>{if(!audioCtx||audioMuted)return;const t=audioCtx.currentTime;
+    if(step%4===0)playKick(t);          // 每小節 kick（輕柔）
+    if(step%2===0)playHihat(t);         // 每拍 hihat
+    if(step%4===2){                      // 反拍加一個亮 hihat
+      playHihat(t);
+      playNote(1047,t,.03,.04,'sine');   // 小 ping 聲增加輕快感
+    }
+    if(step%8===0)chords[Math.floor(step/8)%4].forEach(f=>playNote(f,t,beat*8,.02));
+    step++;};
+  tick();musicIntervals.push(setInterval(tick,beat*1000));
+}
+function playClickSfx(){
+  if(!audioCtx||audioMuted)return;
+  const t=audioCtx.currentTime;
+  playNote(880,t,.06,.13,'sine');
+  playNote(1200,t+.03,.04,.06,'sine');
+}
+function toggleMute(){
+  audioMuted=!audioMuted;
+  document.getElementById('mute-btn').textContent=audioMuted?'🔇':'🔊';
+  if(audioCtx){
+    if(audioMuted){stopMusic();audioCtx.suspend();}
+    else{audioCtx.resume();
+      if(currentMode==='tense')playTense();else if(currentMode==='intense')playIntense();else if(currentMode==='relax')playRelax();}
+  }
+}
+document.getElementById('mute-btn').addEventListener('click',toggleMute);
+
+// ════════════════════════════════════════
+//  GAME STATE
+// ════════════════════════════════════════
+let G={};
+function reset(){G={scene:0,choices:[],hp:100,disc:{D:0,I:0,S:0,C:0},sel:null,pType:null,treatmentChoice:null,firstTrChoice:null,shareCount:0,history:[]};}
+
+// ════════════════════════════════════════
+//  SCREEN MANAGEMENT
+// ════════════════════════════════════════
+function showScreen(id){
+  const cur=document.querySelector('.screen.active');
+  if(cur&&cur.id!==id&&G.history){G.history.push(cur.id);}
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function goBack(){
+  const curActive=document.querySelector('.screen.active');
+  // ★ 場景頁內部：往前一關（撤銷上一關選擇）
+  if(curActive&&curActive.id==='screen-scene'){
+    if(G.scene>0){
+      const last=G.choices.pop();
+      if(last){G.hp-=last.chosen.hp;G.disc[last.chosen.disc]--;}
+      G.scene--;
+      G.sel=null;
+      renderScene();
+      enterScene();
+    } else {
+      // 第一關：回到開場對話
+      document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+      document.getElementById('screen-intro-dialogue').classList.add('active');
+      window.scrollTo({top:0,behavior:'smooth'});
+    }
+    return;
+  }
+  // 其他畫面：從 history 彈出前一畫面
+  if(!G.history||!G.history.length){showScreen('screen-intro');return;}
+  const prev=G.history.pop();
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(prev).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(prev==='screen-scene'){
+    if(G.scene>=SCENES.length) G.scene=SCENES.length-1;
+    renderScene();
+    enterScene();
+  }
+}
+
+// ════════════════════════════════════════
+//  GAME FLOW
+// ════════════════════════════════════════
+function startGame(){
+  reset();
+  ensureAudio();
+  playTense();
+  showScreen('screen-scene');
+  renderScene();
+  enterScene();
+}
+
+function renderScene(){
+  const sc=SCENES[G.scene];
+  G.sel=null;
+  const sceneEl=document.getElementById('screen-scene');
+  sceneEl.classList.toggle('scene5',G.scene===4);
+
+  // Inject scene color
+  document.documentElement.style.setProperty('--scene-color', sc.sceneColor||'#005587');
+
+  // Progress
+  const dotsEl=document.getElementById('pdots');dotsEl.innerHTML='';
+  for(let i=0;i<5;i++){const d=document.createElement('div');
+    d.className='pdot'+(i<G.scene?' done':i===G.scene?' active':'');dotsEl.appendChild(d);}
+
+  // Switch to intense music for scene 5
+  if(G.scene===4) playIntense();
+
+  document.getElementById('s-badge').textContent=sc.badge;
+  document.getElementById('s-dept').textContent=sc.dept;
+  document.getElementById('s-title').textContent=sc.title;
+  // Set situation text (preserve emoji span)
+  const sitEl=document.getElementById('s-situation');
+  const emojiSpan=document.getElementById('s-emoji');
+  sitEl.innerHTML='';
+  emojiSpan.textContent=sc.emoji||'';
+  sitEl.appendChild(emojiSpan);
+  sitEl.insertAdjacentText('beforeend',' '+sc.situation);
+  document.getElementById('s-question').textContent=sc.question||'您會怎麼下令？';
+
+  const narEl=document.getElementById('s-narrator');narEl.innerHTML='';
+  if(sc.isReveal){
+    const box=document.createElement('div');box.className='reveal-box';
+    box.innerHTML=`<div class="ntag">▶ 特助 小哨</div><div class="ntext">${sc.narrator.map(t=>`<p>${t}</p>`).join('')}</div><div class="connection-bar"></div><div class="reveal-node">⬡ IL-4 / IL-13 / IL-5 核心指令 ⬡</div>`;
+    narEl.appendChild(box);
+  } else {
+    const box=document.createElement('div');box.className='narrator-bubble';
+    box.innerHTML=`<div class="ntag">▶ 特助 小哨</div><div class="ntext">${sc.narrator.map(t=>`<p>${t}</p>`).join('')}</div>`;
+    narEl.appendChild(box);
+  }
+
+  const optEl=document.getElementById('s-options');optEl.innerHTML='';
+  sc.options.forEach((opt,i)=>{
+    const card=document.createElement('div');card.className='opt-card';
+    card.innerHTML=`<div class="opt-label">選項 ${opt.label}</div><div class="opt-text">${opt.text}</div>`;
+    card.addEventListener('click',()=>pickOpt(i));optEl.appendChild(card);
+  });
+
+  const btn=document.getElementById('btn-next');btn.classList.remove('on');
+  btn.textContent=G.scene<4?`確認決策，前往場景 ${G.scene+2} →`:'確認決策，查看年度考核 →';
+}
+
+function enterScene(){
+  const bgImg=document.getElementById('scene-bg-img');
+  const panel=document.getElementById('scene-panel');
+  const sc=SCENES[G.scene];
+
+  // 設定背景圖（fade-in）
+  bgImg.classList.remove('visible');
+  if(sc.bgImg){
+    bgImg.src=sc.bgImg;
+    bgImg.onload=()=>bgImg.classList.add('visible');
+    bgImg.onerror=()=>{};
+  } else {
+    bgImg.src='';
+  }
+
+  // 面板從底部滑入（3000ms 後啟動，背景停留 3 秒）
+  panel.classList.remove('exit','enter');
+  panel.style.transform='translateY(110%)';
+  setTimeout(()=>{
+    panel.scrollTop=0;
+    panel.style.transform='';
+    panel.classList.add('enter');
+  },3000);
+}
+
+function pickOpt(idx){
+  G.sel=idx;
+  document.querySelectorAll('.opt-card').forEach((c,i)=>c.classList.toggle('selected',i===idx));
+  document.getElementById('btn-next').classList.add('on');
+  playClickSfx();
+}
+
+function nextScene(){
+  if(G.sel===null)return;
+  const sc=SCENES[G.scene];const chosen=sc.options[G.sel];
+  G.choices.push({sc,chosen});G.hp+=chosen.hp;G.disc[chosen.disc]++;
+
+  const panel=document.getElementById('scene-panel');
+  const radial=document.getElementById('scene-radial');
+  const bgImg=document.getElementById('scene-bg-img');
+
+  // Phase 1: 面板向下滑出
+  panel.classList.remove('enter');
+  panel.classList.add('exit');
+
+  setTimeout(()=>{
+    G.scene++;
+    if(G.scene<SCENES.length){
+      // Phase 2: 輻射遮罩爆破
+      radial.classList.remove('burst');
+      void radial.offsetWidth; // reflow to restart animation
+      radial.classList.add('burst');
+
+      // Phase 3: 換圖（在輻射遮罩覆蓋中途）
+      setTimeout(()=>{
+        renderScene();
+        bgImg.classList.remove('visible');
+        const nextSc=SCENES[G.scene];
+        if(nextSc.bgImg){
+          bgImg.src=nextSc.bgImg;
+          bgImg.onload=()=>bgImg.classList.add('visible');
+          bgImg.onerror=()=>{};
+        } else {
+          bgImg.src='';
+        }
+      },300);
+
+      // Phase 4: 遮罩淡出 + 新面板入場（捲回頂端）
+      setTimeout(()=>{
+        radial.classList.remove('burst');
+        panel.scrollTop=0;
+        panel.classList.remove('exit');
+        panel.style.transform='translateY(110%)';
+        setTimeout(()=>{
+          panel.style.transform='';
+          panel.classList.add('enter');
+        },600);
+      },1100);
+
+    } else {
+      playRelax();showReview();
+    }
+  },300);
+}
+
+// ════════════════════════════════════════
+//  REVIEW
+// ════════════════════════════════════════
+function showReview(){
+  showScreen('screen-review');
+  const rvEl=document.getElementById('rv-items');rvEl.innerHTML='';
+  let ffTotal=0,extTotal=0;
+
+  G.choices.forEach(({sc,chosen},idx)=>{
+    const loss=Math.abs(chosen.hp);
+    if(chosen.type==='ff')ffTotal+=loss;else if(chosen.type==='ext')extTotal+=loss;
+    const pct=chosen.hp===0?0:(loss/12)*100;
+    const barCls=chosen.type==='zero'?'bar-zero':chosen.type==='ext'?'bar-ext':'bar-ff';
+    const hpCol=chosen.hp===0?'#228855':chosen.type==='ext'?'#cc2244':'#cc6600';
+    const hpStr=chosen.hp===0?'± 0':`${chosen.hp} HP`;
+
+    const item=document.createElement('div');item.className='rv-item';
+    item.innerHTML=`<div class="rv-scene">${sc.badge}｜${sc.title}</div>
+      <div class="rv-choice"><strong>選${chosen.label}｜</strong>${chosen.text.slice(0,26)}…</div>
+      <div class="rv-result">${chosen.result}</div>
+      <div class="rv-bar-row">
+        <div class="rv-tag">${chosen.tag}</div>
+        <div class="bar-bg"><div class="bar-fill ${barCls}" data-w="${pct}"></div></div>
+        <div class="rv-hp-val" style="color:${hpCol}">${hpStr}</div>
+      </div>`;
+    rvEl.appendChild(item);
+
+    setTimeout(()=>{
+      item.classList.add('visible');
+      setTimeout(()=>item.querySelector('.bar-fill').style.width=pct+'%',300);
+    },idx*600);
+  });
+
+  setTimeout(()=>{
+    const numEl=document.getElementById('final-num');
+    numEl.textContent=`${G.hp} / 100`;
+    // 健康分級：危險≤64 / 安全65-74 / 健康≥75
+    const zone=G.hp>=75?'healthy':G.hp>=65?'safe':'danger';
+    const zoneColors={healthy:'#228855',safe:'#cc8800',danger:'#cc2244'};
+    const zoneLabels={healthy:'🟢 健康',safe:'🟡 安全',danger:'🔴 危險'};
+    numEl.style.color=zoneColors[zone];
+    document.getElementById('final-bar').style.width=G.hp+'%';
+    document.getElementById('final-bar').style.background=
+      zone==='healthy'?'linear-gradient(90deg,#228855,#44bb77)':
+      zone==='safe'   ?'linear-gradient(90deg,#cc8800,#ffaa00)':
+                       'linear-gradient(90deg,#cc2244,#ff4466)';
+    // 健康區間指示器
+    document.getElementById('final-chips').innerHTML=
+      `<div style="text-align:center;margin-bottom:12px">
+         <span style="font-size:1.3rem;font-weight:700;color:${zoneColors[zone]}">${zoneLabels[zone]}</span>
+       </div>
+       <div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap">
+         <span class="chip chip-ext" style="${zone==='danger'?'opacity:1;font-weight:700':'opacity:.4'}">🔴 危險 ≤64</span>
+         <span class="chip" style="background:rgba(200,130,0,.15);color:#aa6600;${zone==='safe'?'opacity:1;font-weight:700':'opacity:.4'}">🟡 安全 65–74</span>
+         <span class="chip" style="background:rgba(34,136,85,.12);color:#228855;${zone==='healthy'?'opacity:1;font-weight:700':'opacity:.4'}">🟢 健康 ≥75</span>
+       </div>
+       <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:10px">
+         <span class="chip chip-ff">🟡 友軍誤傷 -${ffTotal} HP</span>
+         <span class="chip chip-ext">🔴 外敵突破 -${extTotal} HP</span>
+       </div>`;
+  },G.choices.length*600+500);
+
+  const gradeTexts={
+    healthy:'「您的每一個決定都恰到好處——公司的防禦系統精準而有效率。這種精準管控，正是我們對抗第二型發炎反應最需要的能力。」',
+    safe:'「您保護了這座公司，但有些決定讓員工多承受了一些。看看那些🟡的記錄——大部分的傷害，其實是自己人造成的。」',
+    danger:'「公司撐過來了，但代價不小。幾乎所有的傷害都來自🟡——是過激的防禦反應，而非外敵，讓宿主受了苦。這正是第二型發炎反應最真實的樣子。」'
+  };
+  document.getElementById('grade-box').textContent=
+    G.hp>=75?gradeTexts.healthy:G.hp>=65?gradeTexts.safe:gradeTexts.danger;
+}
+
+// ════════════════════════════════════════
+//  PERSONALITY
+// ════════════════════════════════════════
+function showPersonality(){
+  let max=0,winner=null,tie=false;
+  for(const[t,n]of Object.entries(G.disc)){if(n>max){max=n;winner=t;tie=false;}else if(n===max)tie=true;}
+  if(tie)winner=G.choices[4].chosen.disc;
+  G.pType=winner;
+  const p=PERSONAS[winner];
+
+  // 先顯示「分析中」loading 畫面
+  document.getElementById('personality-content').innerHTML=`
+    <div style="text-align:center;padding:60px 20px">
+      <div style="font-size:3.5rem;animation:pulse 1s infinite">🔬</div>
+      <p style="margin-top:16px;color:var(--text-dim);font-size:1rem;letter-spacing:.06em;animation:pulse 1.4s infinite">
+        正在分析您的免疫人格…
+      </p>
+    </div>`;
+  showScreen('screen-personality');
+
+  // 1800ms 後揭曉角色
+  setTimeout(()=>{
+    document.getElementById('personality-content').innerHTML=`
+      <div class="cell-wrap">
+        <div class="char-img-wrap">
+          <img class="char-img char-img-reveal" src="${p.charImg||''}" alt="${p.cell}"
+            onerror="this.style.display='none'">
+        </div>
+        <p class="p-disc-label personality-text-reveal">${p.discLabel}</p>
+        <h2 class="p-name personality-text-reveal" style="color:${p.colorVar}">${p.cell}</h2>
+      </div>
+      <div class="p-card personality-text-reveal">
+        <p class="p-quote">${p.quote}</p>
+        <p class="p-desc">${p.desc}</p>
+        <p class="p-section">▶ ${p.bioTitle}</p>
+        <p class="p-bio">${p.bio}</p>
+      </div>
+      <p class="p-score personality-text-reveal">公司最終健康度：<strong style="color:var(--accent)">${G.hp} / 100</strong></p>`;
+  },1800);
+}
+
+// ════════════════════════════════════════
+//  COMPAT
+// ════════════════════════════════════════
+function showCompat(){
+  const pt=G.pType,c=COMPAT[pt],p=PERSONAS[pt];
+  document.getElementById('compat-my-name').textContent=`「${p.cell}」`;
+  const cardsEl=document.getElementById('compat-cards');cardsEl.innerHTML='';
+  const order=[c.best,...c.others];
+  order.forEach(type=>{
+    const tp=PERSONAS[type];
+    const card=document.createElement('div');card.className='compat-card';
+    card.innerHTML=(type===c.best?`<div class="best-badge">最速配 ✦</div>`:'')
+      +`<img class="compat-char-img" src="${tp.charImg||''}" alt="${tp.cell}" onerror="this.style.display='none'">
+         <div class="compat-type" style="color:${tp.colorVar}">DISC ${type}型</div>
+         <div class="compat-cell">${tp.cell}</div>`;
+    card.addEventListener('click',()=>showCompatReason(type,card));
+    cardsEl.appendChild(card);
+  });
+  showScreen('screen-compat');
+}
+function showCompatReason(type,card){
+  document.querySelectorAll('.compat-card').forEach(c=>c.classList.remove('active'));
+  card.classList.add('active');
+  const tp=PERSONAS[type],reason=COMPAT[G.pType].reason[type];
+  const colorMap={D:'#cc2244',I:'#dd8800',S:'#228855',C:'#1155bb'};
+  const col=colorMap[type]||'#005587';
+  document.getElementById('cm-header').style.background=
+    `linear-gradient(145deg,${col},#00264D)`;
+  document.getElementById('cm-char').src=tp.charImg||'';
+  document.getElementById('cm-char').alt=tp.cell;
+  document.getElementById('cm-type-tag').textContent=`DISC ${type}型`;
+  document.getElementById('cm-cell-name').textContent=tp.cell;
+  document.getElementById('cm-disc-label').textContent=tp.discLabel;
+  document.getElementById('cm-bio').textContent=tp.bio;
+  document.getElementById('cm-reason-box').textContent=reason;
+  document.getElementById('compat-modal-overlay').classList.add('show');
+}
+function closeCompatModal(){
+  document.getElementById('compat-modal-overlay').classList.remove('show');
+}
+
+// ════════════════════════════════════════
+//  EDU
+// ════════════════════════════════════════
+function showEdu(){showScreen('screen-edu');}
+
+// ════════════════════════════════════════
+//  TREATMENT — 醫療評論資料（基於臨床文獻）
+// ════════════════════════════════════════
+const TREATMENT_DATA = {
+  A:{
+    icon:'⏳', title:'觀察等待', verdict:'⚠️ 通常不建議',
+    verdictColor:'#cc8800',
+    text:'第二型發炎疾病（異位性皮膚炎、氣喘、慢性鼻竇炎、嗜酸性食道炎）屬於慢性發炎，IL-4/IL-13/IL-5 路徑持續活化，症狀通常不會自行消退。研究顯示，未治療的異位性皮膚炎容易演變為「過敏進行曲」，逐步引發過敏性鼻炎與氣喘；嗜酸性食道炎若放任則可能導致食道纖維化與管腔狹窄，影響吞嚥功能。早期介入有助於阻斷疾病進展。'
+  },
+  B:{
+    icon:'💊', title:'傳統藥物控制症狀', verdict:'✅ 有效，但非治本',
+    verdictColor:'#228855',
+    text:'類固醇（口服/吸入/外用）能迅速壓制發炎，短期緩解症狀效果顯著，但長期使用有皮膚萎縮、骨質流失、腎上腺抑制等副作用風險。抗組織胺可緩解急性過敏症狀（搔癢、噴嚏），但無法影響 IL-4/IL-13 核心發炎路徑。支氣管擴張劑能快速開放氣道，卻不治療底層的嗜酸球浸潤。傳統藥物是重要的第一線選擇，但對中重度或多重共病患者，可考慮與醫師討論進一步的靶向治療。'
+  },
+  C:{
+    icon:'🎯', title:'詢問醫師新型靶向療法', verdict:'💡 最精準的方向！',
+    verdictColor:'var(--accent)',
+    text:'靶向生物製劑（如 dupilumab）直接阻斷 IL-4Rα 訊號，同時抑制 IL-4 與 IL-13 兩條路徑——正是本次遊戲揭露的「暴走指令」來源。臨床試驗數據：異位性皮膚炎皮膚嚴重度（EASI 分數）改善達 70–80%、氣喘每年嚴重惡化次數減少 47–70%、慢性鼻竇炎鼻息肉顯著縮小、嗜酸性食道炎達組織學緩解約 60%。這是針對根源的精準治療，有機會同時改善多器官症狀。請與過敏免疫科、胸腔科或腸胃科醫師討論是否適合您。'
+  },
+  D:{
+    icon:'🔍', title:'自行蒐集資訊帶去看診', verdict:'👍 積極正確！',
+    verdictColor:'#1A7A8A',
+    text:'主動了解自己的疾病並帶著資料與醫師溝通，是現代醫療的重要模式。研究顯示，充分知情的患者與醫師的共同決策品質更好，治療依從性也更高。然而，自行詮釋醫學文獻需要謹慎，勿自行調整藥物劑量。最有效的做法是：帶著您蒐集的資料，前往過敏免疫科、胸腔科、耳鼻喉科或腸胃科，由醫師協助評估是否有更適合您的治療選項，包括新型靶向生物製劑。'
+  }
+};
+
+// 選項文字（供探索模式重用）
+const TR_OPT_TEXTS = {
+  A:'⏳ 觀察等待，相信身體能自己調節',
+  B:'💊 使用傳統藥物（類固醇、抗組織胺）控制症狀',
+  C:'🎯 詢問醫師是否有針對發炎根源的新型療法',
+  D:'🔍 主動搜尋最新資訊，帶著資料去看診'
+};
+
+function showTreatment(){
+  // 重設治療頁狀態
+  document.getElementById('tr-phase1-btn').style.display='none';
+  document.getElementById('tr-explore').style.display='none';
+  document.getElementById('tr-commentary').style.display='none';
+  document.getElementById('tr-explore-btn').style.display='none';
+  document.querySelectorAll('#tr-options .tr-card').forEach(c=>{
+    c.style.opacity=''; c.style.borderColor='';
+  });
+  showScreen('screen-treatment');
+}
+
+function selectTreatment(opt,el){
+  G.treatmentChoice=opt;
+  G.firstTrChoice=opt; // 記錄初選
+  // 視覺：高亮選中的卡片
+  document.querySelectorAll('#tr-options .tr-card').forEach(c=>{
+    c.style.opacity='.45'; c.style.borderColor='';
+  });
+  el.style.opacity='1'; el.style.borderColor='var(--accent)';
+  // 顯示「看看其他選項」按鈕（不立即顯示說明）
+  document.getElementById('tr-phase1-btn').style.display='block';
+  document.getElementById('tr-phase1-btn').scrollIntoView({behavior:'smooth',block:'start'});
+  submitToSheets();
+}
+
+function enterTreatmentExplore(){
+  document.getElementById('tr-phase1-btn').style.display='none';
+  document.getElementById('tr-options').style.display='none';
+  const exploreEl=document.getElementById('tr-explore');
+  exploreEl.style.display='block';
+  window.scrollTo({top:0});
+  // 渲染探索模式選項（C 加「推薦」標示）
+  document.getElementById('tr-explore-options').innerHTML=['A','B','C','D'].map(o=>
+    `<div class="tr-card" onclick="showTreatmentComment('${o}',this)">
+      <div class="tr-opt-label">選項 ${o}${o==='C'?' （推薦）':''}</div>
+      <div class="tr-opt-text">${TR_OPT_TEXTS[o]}</div>
+    </div>`
+  ).join('');
+  // 自動展開初選選項的說明
+  setTimeout(()=>{
+    const idx=['A','B','C','D'].indexOf(G.firstTrChoice);
+    if(idx>=0){
+      const card=document.querySelectorAll('#tr-explore-options .tr-card')[idx];
+      if(card) showTreatmentComment(G.firstTrChoice, card);
+    }
+  },300);
+}
+
+function showTreatmentComment(opt,el){
+  // 高亮選中的探索卡片
+  document.querySelectorAll('#tr-explore-options .tr-card').forEach(c=>{
+    c.style.opacity='.45'; c.style.borderColor='';
+  });
+  el.style.opacity='1'; el.style.borderColor='var(--accent)';
+  // 填入醫療評論
+  const data=TREATMENT_DATA[opt];
+  document.getElementById('tr-comment-box').innerHTML=`
+    <div class="tr-comment-icon">${data.icon}</div>
+    <div class="tr-comment-title">您選擇了：${data.title}</div>
+    <div class="tr-comment-verdict" style="color:${data.verdictColor}">${data.verdict}</div>
+    <div class="tr-comment-text">${data.text}</div>`;
+  const commentary=document.getElementById('tr-commentary');
+  commentary.style.display='block';
+  document.getElementById('tr-explore-btn').style.display='block';
+  commentary.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function showHPBoost(){
+  showScreen('screen-hpboost');
+  const before=G.hp;
+  const boost=Math.min(20, 100-before); // 最多+20，不超過100
+  const after=before+boost;
+  // 重設慶祝區
+  document.getElementById('boost-celebrate').style.display='none';
+  // 填入數字
+  document.getElementById('boost-num-before').textContent=`${before} / 100`;
+  document.getElementById('boost-num-after').textContent=`${after} / 100`;
+  // 重設血量條
+  document.getElementById('boost-bar-before').style.width='0%';
+  document.getElementById('boost-bar-after').style.width='0%';
+  // 動畫
+  setTimeout(()=>{
+    document.getElementById('boost-bar-before').style.width=before+'%';
+  },200);
+  setTimeout(()=>{
+    document.getElementById('boost-bar-after').style.width=after+'%';
+  },500);
+  setTimeout(()=>{
+    document.getElementById('boost-celebrate').style.display='block';
+  },2500);
+  // 慶祝 1500ms 後轉場到公司恢復畫面
+  setTimeout(()=>showRecovery(), 4000);
+}
+
+function spawnConfetti(){
+  const colors=['#005587','#0072B5','#78BE20','#FFD700','#FF6B6B','#ffffff','#44ccff'];
+  for(let i=0;i<70;i++){
+    const el=document.createElement('div');
+    el.className='confetti-piece';
+    const size=6+Math.random()*8;
+    el.style.cssText=
+      `left:${Math.random()*100}%;top:0;`+
+      `width:${size}px;height:${size}px;`+
+      `background:${colors[Math.floor(Math.random()*colors.length)]};`+
+      `border-radius:${Math.random()>.5?'50%':'2px'};`+
+      `animation-duration:${1.8+Math.random()*2.5}s;`+
+      `animation-delay:${Math.random()*.8}s`;
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(),4500);
+  }
+}
+
+function showRecovery(){
+  // 儲存 recovery 狀態，防止 iOS Safari 記憶體回收後返回初始畫面
+  try{
+    sessionStorage.setItem('snofi_phase','recovery');
+    sessionStorage.setItem('snofi_G',JSON.stringify({
+      hp:G.hp, pType:G.pType, disc:G.disc,
+      choices:G.choices.map(({sc,chosen})=>({scId:sc.id, label:chosen.label}))
+    }));
+  } catch(e){}
+  // 建立綠色輻射轉場 overlay
+  const overlay=document.createElement('div');
+  overlay.style.cssText='position:fixed;inset:0;z-index:9000;pointer-events:none;'+
+    'background:radial-gradient(circle,rgba(34,136,85,.9) 0%,rgba(0,20,10,.7) 60%,transparent 100%);'+
+    'animation:radialBurstGreen .65s ease-out forwards';
+  document.body.appendChild(overlay);
+  setTimeout(()=>{
+    showScreen('screen-recovery');
+    const bgImg=document.getElementById('recovery-bg-img');
+    bgImg.style.opacity='0';
+    bgImg.src='plot/scene6.png';
+    bgImg.onload=()=>{ bgImg.style.opacity='1'; };
+    bgImg.onerror=()=>{};
+    overlay.remove();
+    // 背景停留 2 秒後灑花 + 面板滑入
+    setTimeout(()=>{
+      spawnConfetti();
+      document.getElementById('recovery-panel').style.transform='translateY(0)';
+    },2000);
+  },600);
+}
+
+// ════════════════════════════════════════
+//  SHARE
+// ════════════════════════════════════════
+function showShare(){
+  showScreen('screen-share');
+  const p=PERSONAS[G.pType];
+  if(!p)return;
+  // Fill HTML card
+  const charImg=document.getElementById('share-char-img');
+  charImg.src=p.charImg||'';
+  charImg.style.display=p.charImg?'block':'none';
+  document.getElementById('share-persona-name').textContent=p.cell;
+  document.getElementById('share-persona-cell').textContent=`${p.discLabel.split('：')[0]}　|　人體總公司的 ${p.cell}`;
+  document.getElementById('share-persona-desc').textContent=p.desc;
+  document.getElementById('share-score-text').textContent=`${G.hp} / 100`;
+  // HP bar
+  setTimeout(()=>{
+    const bar=document.getElementById('share-hp-bar');
+    if(bar) bar.style.width=G.hp+'%';
+  },300);
+  // Canvas (for download)
+  setTimeout(renderShareCanvas,400);
+}
+
+function renderShareCanvas(){
+  const canvas=document.getElementById('share-canvas');
+  const ctx=canvas.getContext('2d');
+  const W=540,H=960;
+  canvas.width=W;canvas.height=H;
+  const p=PERSONAS[G.pType];
+  // Background gradient
+  const grad=ctx.createLinearGradient(0,0,0,H);
+  grad.addColorStop(0,'#005587');grad.addColorStop(1,'#00264D');
+  ctx.fillStyle=grad;ctx.fillRect(0,0,W,H);
+  // Decorative circles
+  ctx.beginPath();ctx.arc(W*.85,H*.12,200,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,.04)';ctx.fill();
+  ctx.beginPath();ctx.arc(W*.1,H*.88,140,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,.04)';ctx.fill();
+  // sanofi logo
+  ctx.fillStyle='rgba(255,255,255,.9)';ctx.font='italic 700 36px serif';ctx.textAlign='center';
+  ctx.fillText('sanofi',W/2,72);
+  ctx.strokeStyle='rgba(255,255,255,.25)';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(W/2-80,92);ctx.lineTo(W/2+80,92);ctx.stroke();
+  // Game title
+  ctx.fillStyle='rgba(255,255,255,.55)';ctx.font='400 22px sans-serif';
+  ctx.fillText('人體總監：挽救公司大作戰',W/2,128);
+
+  // Draw character image or emoji fallback
+  const drawText=()=>{
+    ctx.fillStyle='#fff';ctx.font='700 52px sans-serif';ctx.textAlign='center';
+    ctx.fillText(p.cell,W/2,600);
+    ctx.fillStyle='rgba(255,255,255,.7)';ctx.font='400 26px sans-serif';
+    ctx.fillText(`人體總公司的 ${p.cell}`,W/2,648);
+    ctx.font='300 22px sans-serif';
+    ctx.fillText(`（${p.discLabel.split('：')[0]}）`,W/2,684);
+    // Desc (wrap text)
+    ctx.fillStyle='rgba(255,255,255,.75)';ctx.font='300 20px sans-serif';
+    const words=p.desc;const maxW=440,lh=32,startY=730;
+    let line='',y=startY;
+    for(let i=0;i<words.length;i++){
+      const c=words[i];const test=line+c;
+      if(ctx.measureText(test).width>maxW&&line.length>0){ctx.fillText(line,W/2,y);line=c;y+=lh;}
+      else line=test;
+    }
+    if(line)ctx.fillText(line,W/2,y);
+    // Divider
+    ctx.strokeStyle='rgba(255,255,255,.2)';
+    ctx.beginPath();ctx.moveTo(W/2-100,y+20);ctx.lineTo(W/2+100,y+20);ctx.stroke();
+    // HP
+    ctx.fillStyle='#fff';ctx.font='500 28px sans-serif';
+    ctx.fillText(`公司最終健康度 ${G.hp} / 100`,W/2,y+60);
+    const bx=W/2-140,by=y+76,bw=280,bh=12;
+    ctx.fillStyle='rgba(255,255,255,.2)';roundRect(ctx,bx,by,bw,bh,6);ctx.fill();
+    ctx.fillStyle='rgba(255,255,255,.85)';roundRect(ctx,bx,by,bw*(G.hp/100),bh,6);ctx.fill();
+    // Hashtags
+    ctx.fillStyle='rgba(255,255,255,.4)';ctx.font='300 19px sans-serif';
+    ctx.fillText('#大腦糾察隊  #暴走分公司  #第二型發炎',W/2,920);
+  };
+
+  const imgSize=320,imgX=(W-imgSize)/2,imgY=160;
+  if(p.charImg){
+    // Try reusing the already-loaded HTML image (faster, avoids CORS)
+    const existImg=document.getElementById('share-char-img');
+    if(existImg&&existImg.naturalWidth>0){
+      ctx.drawImage(existImg,imgX,imgY,imgSize,imgSize);
+      drawText();
+    } else {
+      const img=new Image();
+      img.onload=()=>{ctx.drawImage(img,imgX,imgY,imgSize,imgSize);drawText();};
+      img.onerror=()=>{ctx.font='100px serif';ctx.textAlign='center';ctx.fillText(p.emoji,W/2,360+imgSize/2);drawText();};
+      img.src=p.charImg;
+    }
+  } else {
+    ctx.font='100px serif';ctx.textAlign='center';ctx.fillText(p.emoji,W/2,360+imgSize/2);
+    drawText();
+  }
+}
+function roundRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);
+  ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);}
+
+function _getCanvasBlob(){
+  return new Promise(resolve=>{
+    document.getElementById('share-canvas').toBlob(blob=>resolve(blob),'image/png');
+  });
+}
+async function _shareOrDownload(logKey){
+  if(logKey){G.shareCount++;logShare(logKey);}
+  const blob=await _getCanvasBlob();
+  if(!blob){alert('圖片尚未產生，請稍後再試');return;}
+  const file=new File([blob],'大腦糾察隊結果.png',{type:'image/png'});
+  if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
+    try{await navigator.share({files:[file],title:'我的免疫細胞人格',text:'#大腦糾察隊 #暴走分公司'});return;}
+    catch(e){if(e.name==='AbortError')return;}
+  }
+  // 桌機或不支援 Web Share：直接下載
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.download='大腦糾察隊結果.png';a.href=url;
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url),3000);
+}
+function downloadCard(){_shareOrDownload(null);}
+function shareIG(){_shareOrDownload('IG');}
+function shareFB(){_shareOrDownload('FB');}
+function shareLINE(){_shareOrDownload('LINE');}
+function copyLink(){
+  G.shareCount++;logShare('Link');
+  if(navigator.clipboard){navigator.clipboard.writeText(location.href).then(()=>alert('連結已複製！'));}
+  else{const t=document.createElement('textarea');t.value=location.href;document.body.appendChild(t);t.select();document.execCommand('copy');document.body.removeChild(t);alert('連結已複製！');}
+}
+function logShare(platform){
+  const arr=JSON.parse(localStorage.getItem('sanofi_responses')||'[]');
+  const last=arr[arr.length-1];if(last)last.share=platform;
+  localStorage.setItem('sanofi_responses',JSON.stringify(arr));
+}
+
+// ════════════════════════════════════════
+//  GOOGLE SHEETS
+// ════════════════════════════════════════
+function submitToSheets(){
+  const data={disc:G.pType,nickname:PERSONAS[G.pType]?.name,
+    s1:G.choices[0]?.chosen.label,s2:G.choices[1]?.chosen.label,
+    s3:G.choices[2]?.chosen.label,s4:G.choices[3]?.chosen.label,s5:G.choices[4]?.chosen.label,
+    hp:G.hp,treatment:G.treatmentChoice,share:null,
+    device:navigator.userAgent.includes('Mobile')?'mobile':'desktop'};
+  const arr=JSON.parse(localStorage.getItem('sanofi_responses')||'[]');
+  arr.push({...data,time:new Date().toISOString()});
+  localStorage.setItem('sanofi_responses',JSON.stringify(arr));
+  if(APPS_SCRIPT_URL&&!APPS_SCRIPT_URL.includes('YOUR_')){
+    // mode:'no-cors' + text/plain 避免 CORS 預檢（Apps Script 不回應 OPTIONS）
+    fetch(APPS_SCRIPT_URL,{method:'POST',mode:'no-cors',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body:JSON.stringify(data)}).catch(console.error);
+  }
+}
+
+// ════════════════════════════════════════
+//  ADMIN
+// ════════════════════════════════════════
+let adminAuthed=false,logoClickCount=0,logoClickTimer=null;
+
+document.getElementById('logo-click-area').addEventListener('click',()=>{
+  logoClickCount++;clearTimeout(logoClickTimer);
+  logoClickTimer=setTimeout(()=>logoClickCount=0,2000);
+  if(logoClickCount>=5){logoClickCount=0;showScreen('screen-admin');}
+});
+
+function checkAdminPw(){
+  const pw=document.getElementById('admin-pw-input').value;
+  if(pw==='Sanofi'){adminAuthed=true;renderAdmin();}
+  else{document.getElementById('admin-err').style.display='block';}
+}
+function adminLogout(){document.getElementById('admin-pw-input').value='';adminAuthed=false;showScreen('screen-intro');}
+function renderAdmin(){
+  document.getElementById('admin-login-view').style.display='none';
+  document.getElementById('admin-dashboard-view').style.display='block';
+  const rows=JSON.parse(localStorage.getItem('sanofi_responses')||'[]');
+  const total=rows.length;
+  const discCount={D:0,I:0,S:0,C:0};
+  const sceneCount=[{A:0,B:0,C:0,D:0},{A:0,B:0,C:0,D:0},{A:0,B:0,C:0,D:0},{A:0,B:0,C:0,D:0},{A:0,B:0,C:0,D:0}];
+  const treatCount={A:0,B:0,C:0,D:0};
+  let hpSum=0;
+  rows.forEach(r=>{
+    if(discCount[r.disc]!==undefined)discCount[r.disc]++;
+    hpSum+=r.hp||0;
+    ['s1','s2','s3','s4','s5'].forEach((k,i)=>{if(r[k]&&sceneCount[i][r[k]]!==undefined)sceneCount[i][r[k]]++;});
+    if(r.treatment&&treatCount[r.treatment]!==undefined)treatCount[r.treatment]++;
+  });
+  const avgHP=total>0?Math.round(hpSum/total):0;
+  const topDisc=Object.entries(discCount).sort((a,b)=>b[1]-a[1])[0]?.[0]||'—';
+  // Stat cards
+  document.getElementById('stat-cards').innerHTML=`
+    <div class="stat-card"><div class="stat-val">${total}</div><div class="stat-lbl">完成人數</div></div>
+    <div class="stat-card"><div class="stat-val">${avgHP}</div><div class="stat-lbl">平均血量</div></div>
+    <div class="stat-card"><div class="stat-val">${rows.filter(r=>r.share).length}</div><div class="stat-lbl">分享次數</div></div>
+    <div class="stat-card"><div class="stat-val">${topDisc}</div><div class="stat-lbl">最常見類型</div></div>`;
+  // DISC bars
+  const colors={D:'var(--D)',I:'var(--I)',S:'var(--S)',C:'var(--C)'};
+  document.getElementById('disc-chart').innerHTML=['D','I','S','C'].map(t=>{
+    const pct=total>0?Math.round(discCount[t]/total*100):0;
+    return`<div class="disc-bar-row"><span class="disc-bar-label" style="color:${colors[t]}">${t}</span>
+      <div class="disc-bar-bg"><div class="disc-bar-fill" style="width:${pct}%;background:${colors[t]}"></div></div>
+      <span class="disc-bar-pct">${pct}%</span></div>`;}).join('');
+  // Heatmap
+  const scenes=['公關部','收發室','空調機房','餐廳','指揮中心'];
+  let hm=`<table class="hm-table"><tr><th>場景</th><th>A</th><th>B</th><th>C</th><th>D</th></tr>`;
+  scenes.forEach((s,i)=>{
+    const row=sceneCount[i],tot=Object.values(row).reduce((a,b)=>a+b,0)||1;
+    hm+=`<tr><td>${s}</td>${['A','B','C','D'].map(l=>{const p=Math.round(row[l]/tot*100);
+      const bg=p>40?'rgba(0,85,135,.2)':p>20?'rgba(0,85,135,.1)':'transparent';
+      return`<td><span class="hm-cell" style="background:${bg}">${p}%</span></td>`;}).join('')}</tr>`;});
+  document.getElementById('heatmap-wrap').innerHTML=hm+'</table>';
+  // Treatment
+  const tt=Object.values(treatCount).reduce((a,b)=>a+b,0)||1;
+  document.getElementById('treat-chart').innerHTML=['A','B','C','D'].map(l=>{
+    const p=Math.round(treatCount[l]/tt*100);
+    return`<div class="disc-bar-row"><span class="disc-bar-label">${l}</span>
+      <div class="disc-bar-bg"><div class="disc-bar-fill" style="width:${p}%;background:var(--accent)"></div></div>
+      <span class="disc-bar-pct">${p}%</span></div>`;}).join('');
+  // Recent
+  const recent=rows.slice(-10).reverse();
+  let rt=`<table class="r-table"><tr><th>時間</th><th>類型</th><th>HP</th><th>治療</th></tr>`;
+  if(recent.length===0)rt+=`<tr><td colspan="4" style="color:var(--text-dim);text-align:center;padding:16px">尚無資料</td></tr>`;
+  recent.forEach(r=>{const d=new Date(r.time);
+    rt+=`<tr><td>${d.toLocaleDateString()} ${d.toLocaleTimeString().slice(0,5)}</td><td style="color:${colors[r.disc]||'inherit'}">${r.disc||'—'}</td><td>${r.hp??'—'}</td><td>${r.treatment||'—'}</td></tr>`;});
+  document.getElementById('recent-wrap').innerHTML=rt+'</table>';
+}
+function exportCSV(){
+  const rows=JSON.parse(localStorage.getItem('sanofi_responses')||'[]');
+  if(!rows.length){alert('尚無資料');return;}
+  const header='時間,DISC型,HP,場景1,場景2,場景3,場景4,場景5,治療選擇,分享,裝置\n';
+  const body=rows.map(r=>[r.time,r.disc,r.hp,r.s1,r.s2,r.s3,r.s4,r.s5,r.treatment,r.share,r.device].join(',')).join('\n');
+  const blob=new Blob(['﻿'+header+body],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='sanofi_responses.csv';a.click();
+}
+
+// ════════════════════════════════════════
+//  RESTART
+// ════════════════════════════════════════
+function restartGame(){stopMusic();reset();try{sessionStorage.removeItem('snofi_phase');sessionStorage.removeItem('snofi_G');}catch(e){}showScreen('screen-intro');}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  // 頁面重載後還原 recovery 狀態（iOS Safari 記憶體回收後返回頁面）
+  const phase=sessionStorage.getItem('snofi_phase');
+  if(phase==='recovery'){
+    try{
+      const sv=JSON.parse(sessionStorage.getItem('snofi_G'));
+      G.hp=sv.hp; G.pType=sv.pType; G.disc=sv.disc;
+      G.choices=sv.choices.map(c=>{
+        const sc=SCENES[c.scId-1];
+        const chosen=sc.options.find(o=>o.label===c.label);
+        return {sc,chosen};
+      });
+      document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+      document.getElementById('screen-recovery').classList.add('active');
+      const bgImg=document.getElementById('recovery-bg-img');
+      bgImg.src='plot/scene6.png';
+      bgImg.style.opacity='1';
+      document.getElementById('recovery-panel').style.transform='translateY(0)';
+    } catch(e){}
+  }
+});
+
+// ════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════
+reset();
+// Check URL param for admin
+if(new URLSearchParams(location.search).get('admin')==='true'){showScreen('screen-admin');}
+</script>
 </body>
 </html>
